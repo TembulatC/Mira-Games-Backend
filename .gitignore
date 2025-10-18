@@ -26,8 +26,6 @@ Thumbs.db
 
 # ASP.NET Core wwwroot (игнорируем сгенерированные файлы)
 wwwroot/
-!wwwroot/css/
-!wwwroot/js/
 wwwroot/css/*.min.css
 wwwroot/js/*.min.js
 wwwroot/lib/
