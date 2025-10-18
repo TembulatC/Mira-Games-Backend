@@ -1,0 +1,6 @@
+services:
+  miragamesbackend:
+    image: ${DOCKER_REGISTRY-}miragamesbackend
+    build:
+      context: .
+      dockerfile: MiraGamesBackend/Dockerfile

@@ -1,0 +1,25 @@
+# Директории сборки и промежуточные
+bin/
+obj/
+
+# Файлы пользовательских настроек и IDE
+*.suo
+*.user
+*.DotSettings
+*.vs/
+
+# Логи и временные файлы
+*.log
+
+# NuGet
+packages/
+
+# VS Code
+.vscode/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Docker
+.env
