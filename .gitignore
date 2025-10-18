@@ -23,9 +23,3 @@ Thumbs.db
 
 # Docker
 .env
-
-# ASP.NET Core wwwroot (игнорируем сгенерированные файлы)
-wwwroot/
-wwwroot/css/*.min.css
-wwwroot/js/*.min.js
-wwwroot/lib/
