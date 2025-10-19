@@ -30,7 +30,7 @@
       "launchBrowser": true,
       "launchUrl": "{Scheme}://{ServiceHost}:{ServicePort}",
       "environmentVariables": {
-        "ASPNETCORE_URLS": "http://+:8080;https://+:8081"
+        "ASPNETCORE_URLS": "http://+:8080"
       },
       "publishAllPorts": true,
       "useSSL": true

@@ -1,4 +1,4 @@
-using Microsoft.OpenApi.Models;
+п»їusing Microsoft.OpenApi.Models;
 
 namespace MiraGamesBackend
 {
@@ -8,18 +8,18 @@ namespace MiraGamesBackend
         {
             var builder = WebApplication.CreateBuilder(args);
 
-            // Добавление поддержки контроллеров и представлений
+            // Р”РѕР±Р°РІР»РµРЅРёРµ РїРѕРґРґРµСЂР¶РєРё РєРѕРЅС‚СЂРѕР»Р»РµСЂРѕРІ Рё РїСЂРµРґСЃС‚Р°РІР»РµРЅРёР№
             builder.Services.AddControllersWithViews();
 
-            // Подключение сервисов для Swagger
+            // РџРѕРґРєР»СЋС‡РµРЅРёРµ СЃРµСЂРІРёСЃРѕРІ РґР»СЏ Swagger
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen(options =>
             {
                 options.SwaggerDoc("v1", new OpenApiInfo
                 {
-                    Title = "API Тествого задания Mira Games",
+                    Title = "API РўРµСЃС‚РѕРІРѕРіРѕ Р·Р°РґР°РЅРёСЏ Mira Games",
                     Version = "v1",
-                    Description = "Backend-сервис, который собирает, агрегирует и предоставляет данные о будущих релизах игр на ноябрь из Steam"
+                    Description = "Backend-СЃРµСЂРІРёСЃ, РєРѕС‚РѕСЂС‹Р№ СЃРѕР±РёСЂР°РµС‚, Р°РіСЂРµРіРёСЂСѓРµС‚ Рё РїСЂРµРґРѕСЃС‚Р°РІР»СЏРµС‚ РґР°РЅРЅС‹Рµ Рѕ Р±СѓРґСѓС‰РёС… СЂРµР»РёР·Р°С… РёРіСЂ РЅР° РЅРѕСЏР±СЂСЊ РёР· Steam"
                 });
 
                 options.EnableAnnotations();
@@ -35,8 +35,8 @@ namespace MiraGamesBackend
                 app.UseHsts();
             }
 
-            app.UseSwagger(); // Добавление Swagger
-            app.UseSwaggerUI(); // Добавление пользовательского интерфейса Swagger
+            app.UseSwagger(); // Р”РѕР±Р°РІР»РµРЅРёРµ Swagger
+            app.UseSwaggerUI(); // Р”РѕР±Р°РІР»РµРЅРёРµ РїРѕР»СЊР·РѕРІР°С‚РµР»СЊСЃРєРѕРіРѕ РёРЅС‚РµСЂС„РµР№СЃР° Swagger
 
             app.UseHttpsRedirection();
             app.UseStaticFiles();

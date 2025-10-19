@@ -1,14 +1,20 @@
 services:
-  miragamesbackend:
+  web:
+    build:
+      context: .
+      dockerfile: MiraGamesBackend/Dockerfile
+    env_file:
+      - .env
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
-      - ASPNETCORE_HTTP_PORTS=8080
-      - ASPNETCORE_HTTPS_PORTS=8081
-    ports:
-      - "8080"
-      - "8081"
+      - DOTNET_ENVIRONMENT=Development
+      - DOTNET_USE_POLLING_FILE_WATCHER=true
+      - DOTNET_RUNNING_IN_CONTAINER=true
     volumes:
-      - ${APPDATA}/Microsoft/UserSecrets:/home/app/.microsoft/usersecrets:ro
-      - ${APPDATA}/Microsoft/UserSecrets:/root/.microsoft/usersecrets:ro
-      - ${APPDATA}/ASP.NET/Https:/home/app/.aspnet/https:ro
-      - ${APPDATA}/ASP.NET/Https:/root/.aspnet/https:ro
+      - .:/app
+      - ~/.dotnet/tools:/root/.dotnet/tools
+      - ~/.nuget/packages:/root/.nuget/packages:ro
+      - ~/.aspnet/https:/https:ro
+    stdin_open: true
+    tty: true
+    command: dotnet watch run --urls http://0.0.0.0:8080 --non-interactive --project MiraGamesBackend
