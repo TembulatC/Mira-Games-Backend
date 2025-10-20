@@ -7,11 +7,10 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Folder Include="Modules\SteamIntegration\Models\" />
+    <Folder Include="Modules\SteamIntegration\Application\DTOs\Responses\" />
+    <Folder Include="Modules\SteamIntegration\Application\DTOs\Requests\" />
     <Folder Include="Modules\SteamIntegration\Services\" />
     <Folder Include="Modules\SteamIntegration\Interfaces\" />
-    <Folder Include="Modules\SteamIntegration\Application\DTOs\" />
-    <Folder Include="Modules\SteamIntegration\Application\" />
   </ItemGroup>
 
 </Project>

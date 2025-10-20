@@ -1,4 +1,6 @@
-﻿using Microsoft.OpenApi.Models;
+﻿using Infrastructure.Shared.Database.DBContext;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.OpenApi.Models;
 
 namespace MiraGamesBackend
 {
@@ -24,6 +26,10 @@ namespace MiraGamesBackend
 
                 options.EnableAnnotations();
             });
+
+            // Добавляем AppDBContext и подключаем БД
+            var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
+            builder.Services.AddDbContext<AppDBContext>(options => options.UseNpgsql(connectionString));
 
             var app = builder.Build();
 

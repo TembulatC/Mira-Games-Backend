@@ -2,6 +2,12 @@
 FROM mcr.microsoft.com/dotnet/sdk:8.0
 WORKDIR /app
 
+# Устанавливаем EF Core tools
+RUN dotnet tool install --global dotnet-ef --version 9.0.0
+
+# Добавляем dotnet tools в PATH
+ENV PATH="$PATH:/root/.dotnet/tools"
+
 # Копируем проект отдельно для лучшего кэширования
 COPY MiraGamesBackend/*.csproj ./MiraGamesBackend/
 RUN dotnet restore MiraGamesBackend/MiraGamesBackend.csproj

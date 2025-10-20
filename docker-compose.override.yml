@@ -13,7 +13,7 @@ services:
     volumes:
       - .:/app
       - ~/.dotnet/tools:/root/.dotnet/tools
-      - ~/.nuget/packages:/root/.nuget/packages:ro
+      - ~/.nuget/packages:/root/.nuget/packages
       - ~/.aspnet/https:/https:ro
     stdin_open: true
     tty: true
