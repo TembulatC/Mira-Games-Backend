@@ -1,4 +1,4 @@
-﻿using Domain.Modules.SteamIntegration.Models;
+﻿using Domain.Modules.DataProcessing.Models;
 using Infrastructure.Shared.Database.TableConfigurations;
 using Microsoft.EntityFrameworkCore;
 using System;
@@ -14,7 +14,7 @@ namespace Infrastructure.Shared.Database.DBContext
     {
         public DbSet<Game> Games { get; set; } // Создание таблицы Games
 
-        // добавление конфигураций таблицам
+        // Добавление конфигураций таблицам
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.ApplyConfiguration(new GameConfiguration());

@@ -2,19 +2,27 @@ services:
   web:
     build:
       context: .
-      dockerfile: MiraGamesBackend/Dockerfile
-    container_name: miragamesapp
+      dockerfile: Dockerfile
+    container_name: miragamesapp-dev
     ports:
       - "5200:8080"
     env_file:
       - .env
     environment:
+      - ASPNETCORE_ENVIRONMENT=Development
       - ASPNETCORE_URLS=http://+:8080
-      - ConnectionStrings__DefaultConnection=${DB_CONNECTION_STRING}
-      - API__SteamAPIKey=${STEAM_API_KEY}
+      - ConnectionStrings__DefaultConnection=Host=postgres;Port=${POSTGRES_PORT};Database=${POSTGRES_DB};Username=${POSTGRES_USER};Password=${POSTGRES_PASSWORD}
+      - ConnectionStrings__ClickHouseConnection=Host=clickhouse;Port=${CLICKHOUSE_PORT};Database=${CLICKHOUSE_DB};Username=${CLICKHOUSE_USER};Password=${CLICKHOUSE_PASSWORD}
+      - UseRealSteamParsing=false
+    networks:
+      - miragames-network
     depends_on:
-      postgres:
-        condition: service_healthy
+      - postgres
+      - clickhouse
+    volumes:
+      - .:/app
+      - /app/bin
+      - /app/obj
 
   postgres:
     image: postgres:15
@@ -27,11 +35,27 @@ services:
       - "5434:${POSTGRES_PORT}"
     volumes:
       - postgres_data:/var/lib/postgresql/data
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
-      interval: 10s
-      timeout: 5s
-      retries: 3
+    networks:
+      - miragames-network
+
+  clickhouse:
+    image: clickhouse/clickhouse-server:latest
+    container_name: clickhousedb
+    environment:
+      - CLICKHOUSE_DB=${CLICKHOUSE_DB}
+      - CLICKHOUSE_USER=${CLICKHOUSE_USER}
+      - CLICKHOUSE_PASSWORD=${CLICKHOUSE_PASSWORD}
+    ports:
+      - "8124:${CLICKHOUSE_PORT}"
+    volumes:
+      - clickhouse_data:/var/lib/clickhouse
+    networks:
+      - miragames-network
 
 volumes:
   postgres_data:
+  clickhouse_data:
+
+networks:
+  miragames-network:
+    driver: bridge

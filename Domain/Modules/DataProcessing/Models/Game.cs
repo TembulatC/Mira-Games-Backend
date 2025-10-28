@@ -1,23 +1,16 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace Domain.Modules.SteamIntegration.Models
+﻿namespace Domain.Modules.DataProcessing.Models
 {
     // Эта модель будет использоваться в Entity Framework Core для хранения актуальных данных об играх в PostgreSQL
     public class Game
     {   
         public Game() { }
 
-        public Game(int _SteamId, string _Title, DateTime _ReleaseDate, List<string> _Genres, int _WishlistsCount, string _StoreURL, string _ImageURL, string _ShortDescription, List<string> _SupportedPlatforms)
+        public Game(int _SteamId, string _Title, DateTime _ReleaseDate, List<string> _Genres, string _StoreURL, string _ImageURL, string _ShortDescription, List<string> _SupportedPlatforms)
         {
             SteamId = _SteamId;
             Title = _Title;
             ReleaseDate = _ReleaseDate;
             Genres = _Genres;
-            WishlistsCount = _WishlistsCount;
             StoreURL = _StoreURL;
             ImageURL = _ImageURL;
             ShortDescription = _ShortDescription;
@@ -36,8 +29,6 @@ namespace Domain.Modules.SteamIntegration.Models
          Если данная идея вас не устроила можете засчитать это как замечание
         */
         public List<string> Genres { get; set; }
-
-        public int WishlistsCount { get; set; } // Решил выбрать именно количество wishlists, так как это хорошо отражает именно коммерческий интерес к игре
 
         public string StoreURL { get; set; } // Ссылка на страницу игры в магазине
 

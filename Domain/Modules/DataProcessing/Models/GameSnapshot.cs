@@ -1,22 +1,16 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace Domain.Modules.SteamIntegration.Models
+﻿namespace Domain.Modules.DataProcessing.Models
 {
     // Эта модель предназначена для хранения исторических данных в ClickHouse.
     public class GameSnapshot
     {
         public GameSnapshot() { }
 
-        public GameSnapshot(int _SteamId, string _Title, int _WishlistsCount, List<string> _Genres)
+        public GameSnapshot(int _SteamId, string _Title, int _FollowersCount, List<string> _Genres)
         {
             SteamId = _SteamId;
             Title = _Title;
             CollectionDate = DateTime.Now;
-            WishlistsCount = _WishlistsCount;
+            FollowersCount = _FollowersCount;
             Genres = _Genres;
         }
 
@@ -26,7 +20,7 @@ namespace Domain.Modules.SteamIntegration.Models
 
         public DateTime CollectionDate { get; set; } // Дата и времмя сбора данных
 
-        public int WishlistsCount { get; set; } // Решил выбрать именно количество wishlists, так как это хорошо отражает именно коммерческий интерес к игре
+        public int FollowersCount { get; set; } // Решил выбрать именно количество followers, так как многие API не предоставляют данные о вишлистах(а иногда и банят за них)
 
         /*
          Решил выбрать только жанры, потому что тегов нет в SteamAPI (Либо я просто их не нашел), их можно получить только при парсинге HTML страницы игры

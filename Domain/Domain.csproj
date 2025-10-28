@@ -7,10 +7,13 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Folder Include="Modules\SteamIntegration\Application\DTOs\Responses\" />
+    <Folder Include="Modules\DataProcessing\Application\PipeLines\" />
+    <Folder Include="Modules\DataProcessing\Application\Services\" />
     <Folder Include="Modules\SteamIntegration\Application\DTOs\Requests\" />
-    <Folder Include="Modules\SteamIntegration\Services\" />
-    <Folder Include="Modules\SteamIntegration\Interfaces\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.Http.Features" Version="5.0.17" />
   </ItemGroup>
 
 </Project>
