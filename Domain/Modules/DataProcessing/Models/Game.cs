@@ -5,7 +5,7 @@
     {   
         public Game() { }
 
-        public Game(int _SteamId, string _Title, DateTime _ReleaseDate, List<string> _Genres, string _StoreURL, string _ImageURL, string _ShortDescription, List<string> _SupportedPlatforms)
+        public Game(int _SteamId, string _Title, DateOnly _ReleaseDate, List<string> _Genres, string _StoreURL, string _ImageURL, string _ShortDescription, List<string> _SupportedPlatforms)
         {
             SteamId = _SteamId;
             Title = _Title;
@@ -21,7 +21,7 @@
 
         public string Title { get; set; } // Название игры
 
-        public DateTime ReleaseDate { get; set; } // Дата релиза игры
+        public DateOnly ReleaseDate { get; set; } // Дата релиза игры
 
         /*
          Решил выбрать только жанры, потому что тегов нет в SteamAPI (Либо я просто их не нашел), их можно получить только при парсинге HTML страницы игры

@@ -7,8 +7,8 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Folder Include="Modules\DataProcessing\Application\DTOs\Requests\" />
     <Folder Include="Modules\DataProcessing\Application\PipeLines\" />
-    <Folder Include="Modules\DataProcessing\Application\Services\" />
     <Folder Include="Modules\SteamIntegration\Application\DTOs\Requests\" />
   </ItemGroup>
 

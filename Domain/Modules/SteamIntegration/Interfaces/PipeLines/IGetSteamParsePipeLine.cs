@@ -4,9 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Domain.Modules.SteamIntegration.Application.PipeLines
+namespace Domain.Modules.SteamIntegration.Interfaces.PipeLines
 {
-    public interface IGetGamesIDPipeLine
+    public interface IGetSteamParsePipeLine
     {
         Task<List<int>> GetGamesId();
     }

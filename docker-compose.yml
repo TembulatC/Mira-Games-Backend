@@ -2,7 +2,7 @@ services:
   web:
     build:
       context: .
-      dockerfile: Dockerfile
+      dockerfile: MiraGamesBackend/Dockerfile
     container_name: miragamesapp-dev
     ports:
       - "5200:8080"
@@ -11,14 +11,16 @@ services:
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
       - ASPNETCORE_URLS=http://+:8080
-      - ConnectionStrings__DefaultConnection=Host=postgres;Port=${POSTGRES_PORT};Database=${POSTGRES_DB};Username=${POSTGRES_USER};Password=${POSTGRES_PASSWORD}
-      - ConnectionStrings__ClickHouseConnection=Host=clickhouse;Port=${CLICKHOUSE_PORT};Database=${CLICKHOUSE_DB};Username=${CLICKHOUSE_USER};Password=${CLICKHOUSE_PASSWORD}
+      - ConnectionStrings__DefaultConnection=${DB_CONNECTION_STRING}
+      - ConnectionStrings__ClickHouseConnection=${DB_CONNECTION_STRING}
       - UseRealSteamParsing=false
     networks:
       - miragames-network
     depends_on:
-      - postgres
-      - clickhouse
+      postgres:
+        condition: service_healthy
+      clickhouse:
+        condition: service_healthy
     volumes:
       - .:/app
       - /app/bin
@@ -35,6 +37,11 @@ services:
       - "5434:${POSTGRES_PORT}"
     volumes:
       - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
     networks:
       - miragames-network
 
@@ -49,6 +56,11 @@ services:
       - "8124:${CLICKHOUSE_PORT}"
     volumes:
       - clickhouse_data:/var/lib/clickhouse
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:8123/ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
     networks:
       - miragames-network
 

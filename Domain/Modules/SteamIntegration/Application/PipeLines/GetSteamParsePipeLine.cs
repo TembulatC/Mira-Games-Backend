@@ -1,6 +1,7 @@
-﻿using Domain.Modules.SteamIntegration.Application.DTOs.Options;
+﻿using Domain.Modules.SteamIntegration.Application.DTOs;
 using Domain.Modules.SteamIntegration.Application.DTOs.Responses;
-using Domain.Modules.SteamIntegration.Interfaces;
+using Domain.Modules.SteamIntegration.Interfaces.PipeLines;
+using Domain.Modules.SteamIntegration.Interfaces.Repositories;
 
 namespace Domain.Modules.SteamIntegration.Application.PipeLines
 {
@@ -9,7 +10,7 @@ namespace Domain.Modules.SteamIntegration.Application.PipeLines
     /// Управляет всем процессом: загрузка состояния → парсинг → сохранение состояния
     /// Запускается вручную разработчиком когда требуются свежие данные
     /// </summary>
-    public class GetGamesIDPipeLine : IGetGamesIDPipeLine
+    public class GetSteamParsePipeLine : IGetSteamParsePipeLine
     {
         private readonly ISteamParseRepository _steamParseRepository;
 
@@ -17,7 +18,7 @@ namespace Domain.Modules.SteamIntegration.Application.PipeLines
         /// Инициализирует новый экземпляр пайплайна для получения ID игр
         /// </summary>
         /// <param name="steamParseRepository">Репозиторий для парсинга Steam страниц</param>
-        public GetGamesIDPipeLine(ISteamParseRepository steamParseRepository)
+        public GetSteamParsePipeLine(ISteamParseRepository steamParseRepository)
         {
             _steamParseRepository = steamParseRepository;
         }
@@ -43,21 +44,21 @@ namespace Domain.Modules.SteamIntegration.Application.PipeLines
         public async Task<List<int>> GetGamesId()
         {
             // Шаг 1: Загрузка предыдущего состояния парсера
-            LoadStateResponse? loadStateResponse = await _steamParseRepository.LoadState();
+            SteamParseResponse? loadStateResponse = await _steamParseRepository.LoadState();
 
-            LoadStateOptions options;
+            SteamParseDto options;
 
             // Шаг 2: Инициализация настроек парсинга на основе сохраненного состояния
             if (loadStateResponse != null && loadStateResponse.SteamParser.StartPage >= 1)
             {
-                options = new LoadStateOptions
+                options = new SteamParseDto
                 {
                     startPage = loadStateResponse.SteamParser.StartPage
                 };
             }
             else
             {
-                options = new LoadStateOptions
+                options = new SteamParseDto
                 {
                     startPage = 1
                 };
@@ -67,7 +68,7 @@ namespace Domain.Modules.SteamIntegration.Application.PipeLines
             List<int> appsId = await _steamParseRepository.ParseSteamGamesId(options);
 
             // Шаг 4: Сохранение обновленного состояния для следующего запуска
-            LoadStateResponse? saveStateResponse = new LoadStateResponse
+            SteamParseResponse? saveStateResponse = new SteamParseResponse
             {
                 SteamParser = new SteamParser
                 {

@@ -1,5 +1,6 @@
 ﻿using Domain.Modules.SteamIntegration.Application.DTOs.Responses;
-using Domain.Modules.SteamIntegration.Interfaces;
+using Domain.Modules.SteamIntegration.Interfaces.Repositories;
+using Domain.Modules.SteamIntegration.Interfaces.Services;
 
 namespace Domain.Modules.SteamIntegration.Application.Services
 {
@@ -7,7 +8,7 @@ namespace Domain.Modules.SteamIntegration.Application.Services
     /// Сервис для получения и сохранения данных об играх из Steam API
     /// Координирует работу с репозиторием Steam API
     /// </summary>
-    public class GetGamesDataService : IGetGamesDataService
+    public class GetSteamAPIService : IGetSteamAPIService
     {
         private readonly ISteamAPIRepository _steamAPIRepository;
 
@@ -15,7 +16,7 @@ namespace Domain.Modules.SteamIntegration.Application.Services
         /// Инициализирует новый экземпляр сервиса для работы с данными игр
         /// </summary>
         /// <param name="steamAPIRepository">Репозиторий для взаимодействия с Steam API</param>
-        public GetGamesDataService(ISteamAPIRepository steamAPIRepository)
+        public GetSteamAPIService(ISteamAPIRepository steamAPIRepository)
         {
             _steamAPIRepository = steamAPIRepository;
         }
@@ -28,10 +29,10 @@ namespace Domain.Modules.SteamIntegration.Application.Services
         /// </summary>
         /// <param name="appid">Список идентификаторов игр (AppID) для получения данных</param>
         /// <returns>Список объектов с полными данными об играх из Steam API</returns>
-        public async Task<List<GameDataResponse>> GetGamesDataFromAPI(List<int> appid)
+        public async Task<List<SteamAPIResponse>> GetGamesDataFromAPI(List<int> appid)
         {
             // Получение данных об играх из Steam API
-            List<GameDataResponse> gameDataResponses = await _steamAPIRepository.GetGamesData(appid);
+            List<SteamAPIResponse> gameDataResponses = await _steamAPIRepository.GetGamesData(appid);
 
             // Сохранение отфильтрованных данных в JSON файл
             await _steamAPIRepository.SaveGamesData(gameDataResponses);

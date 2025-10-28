@@ -1,6 +1,6 @@
-﻿using Domain.Modules.SteamIntegration.Application.DTOs.Options;
+﻿using Domain.Modules.SteamIntegration.Application.DTOs;
 using Domain.Modules.SteamIntegration.Application.DTOs.Responses;
-using Domain.Modules.SteamIntegration.Interfaces;
+using Domain.Modules.SteamIntegration.Interfaces.Repositories;
 using System.Globalization;
 using System.Net;
 using System.Net.Http.Json;
@@ -31,18 +31,18 @@ namespace Infrastructure.Modules.SteamIntegration.Repositories
         /// </summary>
         /// <param name="appId">Список Steam AppID для получения данных</param>
         /// <returns>Список объектов с данными об играх</returns>
-        public async Task<List<GameDataResponse>> GetGamesData(List<int> appId)
+        public async Task<List<SteamAPIResponse>> GetGamesData(List<int> appId)
         {
-            List<GameDataResponse> gameData = new List<GameDataResponse>();
+            List<SteamAPIResponse> gameData = new List<SteamAPIResponse>();
 
             // Проходим по всем переданным AppID
-            Console.WriteLine("🔥 Начинаем запись игр из SteamAPI в список");
+            Console.WriteLine("🚀 Начинаем запись игр из SteamAPI в список");
             foreach (int steamId in appId) 
             {
                 try
                 {
-                    var response = await _httpClient.GetFromJsonAsync<Dictionary<string, GameDataResponse>>($"https://store.steampowered.com/api/appdetails?appids={steamId}"); // Выполняем запрос к Steam API для получения данных об игре
-                    response.TryGetValue(steamId.ToString(), out GameDataResponse gameDataResponse); // Извлекаем данные игры из словаря ответа
+                    var response = await _httpClient.GetFromJsonAsync<Dictionary<string, SteamAPIResponse>>($"https://store.steampowered.com/api/appdetails?appids={steamId}"); // Выполняем запрос к Steam API для получения данных об игре
+                    response.TryGetValue(steamId.ToString(), out SteamAPIResponse gameDataResponse); // Извлекаем данные игры из словаря ответа
                     gameData.Add(gameDataResponse); // Добавляем игру в список
                     Console.WriteLine($"✅ Игра с ID: {steamId} и Названием: {gameDataResponse.data.name} добавлена");
 
@@ -56,8 +56,8 @@ namespace Infrastructure.Modules.SteamIntegration.Repositories
                     {
                         await Task.Delay(10001);
 
-                        var response = await _httpClient.GetFromJsonAsync<Dictionary<string, GameDataResponse>>($"https://store.steampowered.com/api/appdetails?appids={steamId}"); // Выполняем запрос к Steam API для получения данных об игре
-                        response.TryGetValue(steamId.ToString(), out GameDataResponse gameDataResponse); // Извлекаем данные игры из словаря ответа
+                        var response = await _httpClient.GetFromJsonAsync<Dictionary<string, SteamAPIResponse>>($"https://store.steampowered.com/api/appdetails?appids={steamId}"); // Выполняем запрос к Steam API для получения данных об игре
+                        response.TryGetValue(steamId.ToString(), out SteamAPIResponse gameDataResponse); // Извлекаем данные игры из словаря ответа
                         gameData.Add(gameDataResponse); // Добавляем игру в список
                         Console.WriteLine($"✅ Игра с ID: {steamId} и Названием: {gameDataResponse.data.name} добавлена");
                     }
@@ -76,12 +76,12 @@ namespace Infrastructure.Modules.SteamIntegration.Repositories
         /// Фильтрует только игры, выходящие в ноябре
         /// </summary>
         /// <param name="gameDataResponses">Список объектов с данными об играх для сохранения</param>
-        public async Task SaveGamesData(List<GameDataResponse> gameDataResponses)
+        public async Task SaveGamesData(List<SteamAPIResponse> gameDataResponses)
         {
-            List<GameDataOptions> allGamesData = new List<GameDataOptions>();
+            List<SteamAPIDto> allGamesData = new List<SteamAPIDto>();
 
-            Console.WriteLine("🔥 Фильтрация ноябрьских игр");
-            foreach (GameDataResponse gameData in gameDataResponses)
+            Console.WriteLine("🎛️ Фильтрация ноябрьских игр");
+            foreach (SteamAPIResponse gameData in gameDataResponses)
             {
                 // Проверяем условия для сохранения игры:
                 // 1. Успешный ответ от API
@@ -91,11 +91,11 @@ namespace Infrastructure.Modules.SteamIntegration.Repositories
                     && gameData?.data?.releaseDate?.coming_soon == true 
                     && (gameData?.data?.releaseDate?.date.Contains("Nov") == true || gameData?.data?.releaseDate?.date.Contains("November") == true))
                 {
-                    GameDataOptions options = new GameDataOptions // Создаем объект с оптимизированными данными для сохранения
+                    SteamAPIDto options = new SteamAPIDto // Создаем объект с оптимизированными данными для сохранения
                     {
                         SteamId = gameData.data.appid,
                         Title = gameData.data.name,
-                        ReleaseDate = DateTime.Parse(gameData.data.releaseDate.date),
+                        ReleaseDate = DateOnly.Parse(gameData.data.releaseDate.date),
                         Genres = GetGenres(gameData),
                         StoreURL = $"https://store.steampowered.com/app/{gameData.data.appid}",
                         ImageURL = gameData.data.imageURL,
@@ -132,7 +132,7 @@ namespace Infrastructure.Modules.SteamIntegration.Repositories
         /// </summary>
         /// <param name="gameData">Объект с данными об игре</param>
         /// <returns>Список названий жанров</returns>
-        private List<string> GetGenres(GameDataResponse gameData)
+        private List<string> GetGenres(SteamAPIResponse gameData)
         {
             List<string> genresList = new List<string>();
 
@@ -151,7 +151,7 @@ namespace Infrastructure.Modules.SteamIntegration.Repositories
         /// </summary>
         /// <param name="gameData">Объект с данными об игре</param>
         /// <returns>Список названий поддерживаемых платформ</returns>
-        private List<string> GetSupportedPlatforms(GameDataResponse gameData)
+        private List<string> GetSupportedPlatforms(SteamAPIResponse gameData)
         {
             List<string> supportedPlatformsList = new List<string>();
 

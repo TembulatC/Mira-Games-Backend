@@ -1,6 +1,6 @@
-﻿using Domain.Modules.SteamIntegration.Application.DTOs.Options;
+﻿using Domain.Modules.SteamIntegration.Application.DTOs;
 using Domain.Modules.SteamIntegration.Application.DTOs.Responses;
-using Domain.Modules.SteamIntegration.Interfaces;
+using Domain.Modules.SteamIntegration.Interfaces.Repositories;
 using HtmlAgilityPack;
 using System.Text.Json;
 
@@ -33,13 +33,13 @@ namespace Infrastructure.Modules.SteamIntegration.Repositories
         /// Состояние содержит информацию о последней обработанной странице для оптимизации последующих запусков
         /// </summary>
         /// <returns>Состояние парсера или null если файл не существует</returns>
-        public async Task<LoadStateResponse?> LoadState()
+        public async Task<SteamParseResponse?> LoadState()
         {
             if (File.Exists(_stateFilePath))
             {
                 using (FileStream openStream = File.OpenRead(_stateFilePath))
                 {
-                    return await JsonSerializer.DeserializeAsync<LoadStateResponse>(openStream);
+                    return await JsonSerializer.DeserializeAsync<SteamParseResponse>(openStream);
                 }             
             }
 
@@ -51,7 +51,7 @@ namespace Infrastructure.Modules.SteamIntegration.Repositories
         /// Позволяет продолжить с последней обработанной страницы при следующем запуске
         /// </summary>
         /// <param name="saveStateResponse">Состояние парсера для сохранения</param>
-        public async Task SaveState(LoadStateResponse saveStateResponse)
+        public async Task SaveState(SteamParseResponse saveStateResponse)
         {
             var json = JsonSerializer.Serialize(saveStateResponse, new JsonSerializerOptions
             {
@@ -68,7 +68,7 @@ namespace Infrastructure.Modules.SteamIntegration.Repositories
         /// </summary>
         /// <param name="parseOptions">Настройки парсинга, включая стартовую страницу</param>
         /// <returns>Список ID игр с ноябрьскими релизами 2025 года</returns>
-        public async Task<List<int>> ParseSteamGamesId(LoadStateOptions parseOptions)
+        public async Task<List<int>> ParseSteamGamesId(SteamParseDto parseOptions)
         {
             List<int> listID = new List<int>(); 
             

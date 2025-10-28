@@ -1,12 +1,13 @@
-﻿namespace Domain.Modules.SteamIntegration.Application.DTOs.Options
+﻿// DTO для сериализации данных в "gameinfo.json" в удобном формате для базы данных
+namespace Domain.Modules.SteamIntegration.Application.DTOs
 {
-    public record class GameDataOptions
+    public record class SteamAPIDto
     {
-        public required int? SteamId { get; set; } // Уникальный идентификатор игры в Steam
+        public required int SteamId { get; set; } // Уникальный идентификатор игры в Steam
 
         public required string Title { get; set; } // Название игры
 
-        public DateTime ReleaseDate { get; set; } // Дата релиза игры
+        public DateOnly ReleaseDate { get; set; } // Дата релиза игры
 
         public List<string> Genres { get; set; } // Спискок жанров
 

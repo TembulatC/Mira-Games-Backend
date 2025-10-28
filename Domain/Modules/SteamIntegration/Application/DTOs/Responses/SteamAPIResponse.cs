@@ -1,8 +1,9 @@
-﻿using System.Text.Json.Serialization;
+﻿// DTO для десериализации данных из SteamAPI
+using System.Text.Json.Serialization;
 
 namespace Domain.Modules.SteamIntegration.Application.DTOs.Responses
 {
-    public record class GameDataResponse
+    public record class SteamAPIResponse
     {
         [JsonPropertyName("success")]
         public bool success { get; set; }

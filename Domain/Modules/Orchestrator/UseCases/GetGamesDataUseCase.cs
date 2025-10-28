@@ -1,6 +1,6 @@
 ﻿using Domain.Modules.SteamIntegration.Application.DTOs.Responses;
-using Domain.Modules.SteamIntegration.Application.PipeLines;
-using Domain.Modules.SteamIntegration.Application.Services;
+using Domain.Modules.SteamIntegration.Interfaces.PipeLines;
+using Domain.Modules.SteamIntegration.Interfaces.Services;
 
 namespace Domain.Modules.Orchestrator.UseCases
 {
@@ -11,15 +11,15 @@ namespace Domain.Modules.Orchestrator.UseCases
     /// </summary>
     public class GetGamesDataUseCase
     {
-        private readonly IGetGamesIDPipeLine _getGamesIDPipeLine;
-        private readonly IGetGamesDataService _getGamesDataService;
+        private readonly IGetSteamParsePipeLine _getGamesIDPipeLine;
+        private readonly IGetSteamAPIService _getGamesDataService;
 
         /// <summary>
         /// Инициализирует новый экземпляр UseCase для добавления данных об играх
         /// </summary>
         /// <param name="getGamesIDPipeLine">Пайплайн для получения ID игр через парсинг Steam</param>
         /// <param name="getGamesDataService">Сервис для получения детальных данных из Steam API</param>
-        public GetGamesDataUseCase(IGetGamesIDPipeLine getGamesIDPipeLine, IGetGamesDataService getGamesDataService)
+        public GetGamesDataUseCase(IGetSteamParsePipeLine getGamesIDPipeLine, IGetSteamAPIService getGamesDataService)
         {
             _getGamesIDPipeLine = getGamesIDPipeLine;
             _getGamesDataService = getGamesDataService;
@@ -32,7 +32,7 @@ namespace Domain.Modules.Orchestrator.UseCases
         /// 3. Автоматическое сохранение отфильтрованных данных в JSON файл
         /// </summary>
         /// <returns>Список объектов с полными данными об играх из Steam API</returns>
-        public async Task<List<GameDataResponse>> GetGames()
+        public async Task<List<SteamAPIResponse>> GetGames()
         {
             // Этап 1: Парсинг Steam для получения ID ноябрьских игр
             List<int> appIdList = await _getGamesIDPipeLine.GetGamesId();

@@ -5,10 +5,10 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Domain.Modules.SteamIntegration.Application.Services
+namespace Domain.Modules.SteamIntegration.Interfaces.Services
 {
-    public interface IGetGamesDataService
+    public interface IGetSteamAPIService
     {
-        Task<List<GameDataResponse>> GetGamesDataFromAPI(List<int> appid);
+        Task<List<SteamAPIResponse>> GetGamesDataFromAPI(List<int> appid);
     }
 }
