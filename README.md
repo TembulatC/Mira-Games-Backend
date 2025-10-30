@@ -6,7 +6,7 @@
 git clone https://github.com/TembulatC/Mira-Games-Backend.git
 cd Mira-Games-Backend
 
-# Используется Dockerfile для dev разработки, поэтому может грузится от 1- 5минут
+# Используется Dockerfile для dev разработки, поэтому может грузиться от 1 до 5минут
 docker-compose up -d --build
 ```
 
