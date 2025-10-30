@@ -5,6 +5,7 @@ using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace MiraGamesBackend.Utilities
 {
+    // Статический класс с константами жанров игр
     public static class GameGenre
     {
         [Display(Name = "Action")]
@@ -46,7 +47,7 @@ namespace MiraGamesBackend.Utilities
         [Display(Name = "Early Access")]
         public const string EarlyAccess = "Early Access";
 
-        // Метод для получения всех жанров
+        // Возвращает массив всех доступных жанров
         public static string[] GetAllGenres()
         {
             return
@@ -58,6 +59,7 @@ namespace MiraGamesBackend.Utilities
         }
     }
 
+    // Статический класс с константами поддерживаемых платформ
     public static class SupportPlatforms
     {
         [Display(Name = "Windows")]
@@ -69,7 +71,7 @@ namespace MiraGamesBackend.Utilities
         [Display(Name = "Linux")]
         public const string Linux = "Linux";
 
-        // Метод для получения всех платформ
+        // Возвращает массив всех поддерживаемых платформ
         public static string[] GetAllSupportPlatforms()
         {
             return

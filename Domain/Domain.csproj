@@ -7,13 +7,8 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Folder Include="Modules\DataProcessing\Application\DTOs\Requests\" />
-    <Folder Include="Modules\DataProcessing\Application\PipeLines\" />
-    <Folder Include="Modules\SteamIntegration\Application\DTOs\Requests\" />
-  </ItemGroup>
-
-  <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.Http.Features" Version="5.0.17" />
+    <PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" Version="9.0.10" />
   </ItemGroup>
 
 </Project>

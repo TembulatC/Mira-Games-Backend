@@ -5,6 +5,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace MiraGamesBackend.Utilities
 {
+    // Фильтр для параметра genre в Swagger - добавляет выпадающий список жанров
     public class GameGenreParameterFilter : IParameterFilter
     {
         public void Apply(OpenApiParameter parameter, ParameterFilterContext context)
@@ -23,6 +24,7 @@ namespace MiraGamesBackend.Utilities
         }
     }
 
+    // Фильтр для параметра supportPlatforms в Swagger - добавляет выпадающий список платформ
     public class GameSupportPlatformsParameterFilter : IParameterFilter
     {
         public void Apply(OpenApiParameter parameter, ParameterFilterContext context)

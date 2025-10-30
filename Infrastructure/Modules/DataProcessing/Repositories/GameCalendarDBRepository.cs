@@ -8,10 +8,12 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using static System.Net.Mime.MediaTypeNames;
 
 namespace Infrastructure.Modules.DataProcessing.Repositories
 {
+    /// <summary>
+    /// Репозиторий для работы с календарем игр в базе данных
+    /// </summary>
     public class GameCalendarDBRepository : IGameCalendarDBRepository
     {
         private readonly AppDBContext _appDBContext;
@@ -21,6 +23,9 @@ namespace Infrastructure.Modules.DataProcessing.Repositories
             _appDBContext = appDBContext;
         }
 
+        /// <summary>
+        /// Получает список игр по указанному году и месяцу
+        /// </summary>
         public async Task<List<GameDataDBDto>> GetGamesByMonth(int year, int month)
         {
             List<GameDataDBDto> releasesByMonthList = new List<GameDataDBDto>();
@@ -51,6 +56,9 @@ namespace Infrastructure.Modules.DataProcessing.Repositories
             return releasesByMonthList;
         }
 
+        /// <summary>
+        /// Получает количество игр по дням календаря для указанного месяца
+        /// </summary>
         public async Task<List<CalendarDto>> GetCountGamesByCalendar(int year, int month)
         {
             // Создаем словарь с количеством игр по дням из базы данных
@@ -90,6 +98,9 @@ namespace Infrastructure.Modules.DataProcessing.Repositories
             return releasesByDaysList;
         }
 
+        /// <summary>
+        /// Получает игры по фильтру жанра и поддерживаемых платформ
+        /// </summary>
         public async Task<List<GameDataDBDto>> GetGamesByFilter(string genre, string supportPlatforms)
         {
             List<GameDataDBDto> gamesFilterList = new List<GameDataDBDto>();

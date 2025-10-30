@@ -9,11 +9,12 @@ using System.Threading.Tasks;
 
 namespace Infrastructure.Shared.Database.TableConfigurations
 {
-    // Настройка конфигураций таблиц
+    // Конфигурация таблицы Game в базе данных
     public class GameConfiguration : IEntityTypeConfiguration<Game>
     {
         public void Configure(EntityTypeBuilder<Game> builder)
         {
+            // Настраивает таблицу Game и устанавливает SteamId как первичный ключ
             builder.HasKey(game => game.SteamId);
         }
     }

@@ -17,4 +17,4 @@ services:
       - ~/.aspnet/https:/https:ro
     stdin_open: true
     tty: true
-    command: dotnet watch run --urls http://0.0.0.0:8080 --non-interactive --project MiraGamesBackend
+    command: dotnet run --urls http://0.0.0.0:8080 --non-interactive --project MiraGamesBackend

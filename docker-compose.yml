@@ -10,10 +10,12 @@ services:
       - .env
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
+      - DOTNET_ENVIRONMENT=Development
       - ASPNETCORE_URLS=http://+:8080
+      - DOTNET_USE_POLLING_FILE_WATCHER=true
+      - DOTNET_RUNNING_IN_CONTAINER=true
       - ConnectionStrings__DefaultConnection=${DB_CONNECTION_STRING}
-      - ConnectionStrings__ClickHouseConnection=${DB_CONNECTION_STRING}
-      - UseRealSteamParsing=false
+      - ConnectionStrings__ClickHouseConnection=${CLICKHOUSE_CONNECTION_STRING}
     networks:
       - miragames-network
     depends_on:
@@ -21,10 +23,6 @@ services:
         condition: service_healthy
       clickhouse:
         condition: service_healthy
-    volumes:
-      - .:/app
-      - /app/bin
-      - /app/obj
 
   postgres:
     image: postgres:15
@@ -33,6 +31,7 @@ services:
       - POSTGRES_DB=${POSTGRES_DB}
       - POSTGRES_USER=${POSTGRES_USER}
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRES_HOST_AUTH_METHOD=trust
     ports:
       - "5434:${POSTGRES_PORT}"
     volumes:
@@ -52,6 +51,7 @@ services:
       - CLICKHOUSE_DB=${CLICKHOUSE_DB}
       - CLICKHOUSE_USER=${CLICKHOUSE_USER}
       - CLICKHOUSE_PASSWORD=${CLICKHOUSE_PASSWORD}
+      - CLICKHOUSE_DEFAULT_ACCESS_MANAGEMENT=1
     ports:
       - "8124:${CLICKHOUSE_PORT}"
     volumes:
@@ -63,6 +63,21 @@ services:
       retries: 3
     networks:
       - miragames-network
+
+  tabix:
+    image: spoonest/clickhouse-tabix-web-client
+    container_name: clickhouse-tabix
+    ports:
+      - "8125:80"
+    environment:
+      - CH_HOST=clickhousedb
+      - CH_PORT=${CLICKHOUSE_PORT}
+      - CH_USER=${CLICKHOUSE_USER}
+      - CH_PASSWORD=${CLICKHOUSE_PASSWORD}
+    networks:
+      - miragames-network
+    depends_on:
+      - clickhouse
 
 volumes:
   postgres_data:

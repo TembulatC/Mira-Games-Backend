@@ -9,6 +9,9 @@ using System.Threading.Tasks;
 
 namespace Domain.Modules.DataProcessing.Application.Services
 {
+    /// <summary>
+    /// Сервис для работы с календарем игр
+    /// </summary>
     public class GameCalendarDBService : IGameCalendarDBService
     {
         private readonly IGameCalendarDBRepository _gameCalendarDBRepository;
@@ -18,6 +21,9 @@ namespace Domain.Modules.DataProcessing.Application.Services
             _gameCalendarDBRepository = gameCalendarDBRepository;
         }
 
+        /// <summary>
+        /// Получает список игр по указанной дате в формате YYYY-MM
+        /// </summary>
         public async Task<List<GameDataDBDto>> GetGamesByMonth(string date)
         {
             // Парсим "YYYY-MM" формат на год и месяц
@@ -28,6 +34,9 @@ namespace Domain.Modules.DataProcessing.Application.Services
             return await _gameCalendarDBRepository.GetGamesByMonth(year, month);
         }
 
+        /// <summary>
+        /// Получает количество игр по дням календаря для указанной даты в формате YYYY-MM
+        /// </summary>
         public async Task<List<CalendarDto>> GetCountGamesByCalendar(string date)
         {
             // Парсим "YYYY-MM" формат на год и месяц
@@ -38,6 +47,9 @@ namespace Domain.Modules.DataProcessing.Application.Services
             return await _gameCalendarDBRepository.GetCountGamesByCalendar(year, month);
         }
 
+        /// <summary>
+        /// Получает игры по фильтру жанра и поддерживаемых платформ
+        /// </summary>
         public async Task<List<GameDataDBDto>> GetGamesByFilter(string genre, string supportPlatforms)
         {
             return await _gameCalendarDBRepository.GetGamesByFilter(genre, supportPlatforms);

@@ -54,7 +54,7 @@ namespace Infrastructure.Modules.SteamIntegration.Repositories
                     // ✅ Повтор в отдельном try-catch
                     try
                     {
-                        await Task.Delay(10001);
+                        await Task.Delay(600000); // Через 10 минут пробуем снова
 
                         var response = await _httpClient.GetFromJsonAsync<Dictionary<string, SteamAPIResponse>>($"https://store.steampowered.com/api/appdetails?appids={steamId}"); // Выполняем запрос к Steam API для получения данных об игре
                         response.TryGetValue(steamId.ToString(), out SteamAPIResponse gameDataResponse); // Извлекаем данные игры из словаря ответа
