@@ -21,6 +21,12 @@ namespace Domain.Modules.ClickHouse.Interfaces.Repositories
         /// <returns>Task, представляющий асинхронную операцию сохранения</returns>
         Task AddChangeDynamic(ClickHouseStatisticDto statistic);
 
+        /// <summary>
+        /// Получает записи о динамике изменений статистики игр за указанный период
+        /// Извлекает данные из ClickHouse для анализа исторических трендов
+        /// </summary>
+        /// <param name="date">Дата в формате "YYYY-MM" для фильтрации данных</param>
+        /// <returns>Список DTO объектов с данными статистики за указанный период</returns>
         Task<List<ClickHouseStatisticDto>> GetChangeDynamic(string date);
     }
 }

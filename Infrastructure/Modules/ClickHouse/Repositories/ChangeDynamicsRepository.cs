@@ -66,6 +66,12 @@ namespace Infrastructure.Modules.ClickHouse.Repositories
             await command.ExecuteNonQueryAsync();
         }
 
+        /// <summary>
+        /// Получает записи о динамике изменений статистики игр за указанный период
+        /// Извлекает снимки данных из ClickHouse для анализа трендов во времени
+        /// </summary>
+        /// <param name="date">Дата в формате "YYYY-MM" для фильтрации данных</param>
+        /// <returns>Список DTO объектов с данными статистики за указанный период</returns>
         public async Task<List<ClickHouseStatisticDto>> GetChangeDynamic(string date)
         {
             using var connection = new ClickHouseConnection(_connectionString);

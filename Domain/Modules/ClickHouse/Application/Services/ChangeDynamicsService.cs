@@ -33,6 +33,12 @@ namespace Domain.Modules.ClickHouse.Application.Services
             await _changeDynamicsRepository.AddChangeDynamic(statistic);
         }
 
+        /// <summary>
+        /// Получает записи о динамике изменений статистики игр за указанный период
+        /// Делегирует выполнение операции репозиторию для извлечения данных из ClickHouse
+        /// </summary>
+        /// <param name="date">Дата в формате "YYYY-MM" для фильтрации данных</param>
+        /// <returns>Список DTO объектов с данными статистики за указанный период</returns>
         public async Task<List<ClickHouseStatisticDto>> GetChangeDynamic(string date)
         {
             return await _changeDynamicsRepository.GetChangeDynamic(date);

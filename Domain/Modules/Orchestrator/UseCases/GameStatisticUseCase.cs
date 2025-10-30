@@ -65,6 +65,12 @@ namespace Domain.Modules.Orchestrator.UseCases
             await _changeDynamicsService.AddChangeDynamic(clickHouseStatistic);
         }
 
+        /// <summary>
+        /// Получает записи о динамике изменений статистики игр за указанный период
+        /// Извлекает исторические данные из ClickHouse для анализа трендов
+        /// </summary>
+        /// <param name="date">Дата в формате "YYYY-MM" для фильтрации данных</param>
+        /// <returns>Список DTO объектов с данными статистики за указанный период</returns>
         public async Task<List<ClickHouseStatisticDto>> GetChangeDynamic(string date)
         {
             return await _changeDynamicsService.GetChangeDynamic(date);
