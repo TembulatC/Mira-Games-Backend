@@ -4,7 +4,7 @@
 Перед запуском контейнера переименуйте `.env.Example` в `.env`
 ```
 git clone https://github.com/TembulatC/Mira-Games-Backend.git
-cd MiraGamesBackend
+cd Mira-Games-Backend
 docker-compose up -d -build
 ```
 
