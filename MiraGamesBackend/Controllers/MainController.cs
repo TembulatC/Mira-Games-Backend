@@ -152,7 +152,7 @@ namespace MiraGamesBackend.Controllers
         }
 
         [HttpGet]
-        [Route("games/addChangeDynamic")]
+        [Route("statistics/getChangeDynamic")]
         [SwaggerOperation(Summary = SwaggerTexts.GetChangeDynamic.Summary,
             Description = SwaggerTexts.GetChangeDynamic.Description)]
         public async Task<IActionResult> GetChangeDynamic([FromQuery] string month)

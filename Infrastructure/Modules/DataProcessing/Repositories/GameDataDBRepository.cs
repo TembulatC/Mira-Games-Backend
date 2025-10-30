@@ -60,6 +60,20 @@ namespace Infrastructure.Modules.DataProcessing.Repositories
         {
             if (gameDataDBOptions != null)
             {
+                // Получаем ID всех игр из JSON для синхронизации и отсекаем дубликаты
+                var jsonGameIds = gameDataDBOptions.Select(g => g.SteamId).ToHashSet();
+
+                // Находим игры в БД, которых нет в JSON
+                List<Game> gamesToDelete = await _appDBContext.Games
+                    .Where(g => !jsonGameIds.Contains(g.SteamId))
+                    .ToListAsync();
+
+                // Удаляем игры, которых нет в JSON
+                if (gamesToDelete.Any())
+                {
+                    _appDBContext.Games.RemoveRange(gamesToDelete);
+                }
+
                 Console.WriteLine("🚀 Начинаем обработку данных");
                 foreach (GameDataDBDto options in gameDataDBOptions)
                 {

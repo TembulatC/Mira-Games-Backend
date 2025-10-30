@@ -49,23 +49,23 @@ namespace Domain.Modules.Orchestrator.ScheduledUseCases
                     await useCase.ScheduledGetGamesId();
                     _logger.LogInformation("Этап 1: Обновление JSON завершено");
 
-                    // Этап 2: База данных (ждем 2 часа после этапа JSON)
-                    _logger.LogInformation("Этап 2: Ожидание 2 часа для сохранения в базу данных...");
-                    await Task.Delay(TimeSpan.FromHours(2), stoppingToken);
+                    // Этап 2: База данных (ждем 10 минут после этапа JSON)
+                    _logger.LogInformation("Этап 2: Ожидание 10 минут для сохранения в базу данных...");
+                    await Task.Delay(TimeSpan.FromMinutes(10), stoppingToken);
 
                     _logger.LogInformation("Этап 2: Запуск сохранения в базу данных");
                     await useCase.ScheduledAddAndUpdateGamesData();
                     _logger.LogInformation("Этап 2: Сохранение в базу данных завершено");
 
-                    // Этап 3: ClickHouse (ждем 30 минут после этапа БД)
-                    _logger.LogInformation("Этап 3: Ожидание 30 минут для экспорта в ClickHouse...");
-                    await Task.Delay(TimeSpan.FromMinutes(30), stoppingToken);
+                    // Этап 3: ClickHouse (ждем 10 минут после этапа БД)
+                    _logger.LogInformation("Этап 3: Ожидание 10 минут для экспорта в ClickHouse...");
+                    await Task.Delay(TimeSpan.FromMinutes(10), stoppingToken);
 
                     _logger.LogInformation("Этап 3: Запуск экспорта в ClickHouse");
                     await useCase.ScheduledAddChangeDynamic();
                     _logger.LogInformation("Этап 3: Экспорт в ClickHouse завершен");
 
-                    _logger.LogInformation("Последовательный конвейер данных завершен. Общий цикл: 5.5 часов");
+                    _logger.LogInformation("Последовательный конвейер данных завершен. Общий цикл: 3.3 часа");
                 }
                 catch (OperationCanceledException)
                 {
