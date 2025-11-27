@@ -21,7 +21,7 @@ namespace Domain.Modules.Orchestrator.ScheduledUseCases
         public GameUpdateStatisticsService(IServiceProvider serviceProvider, ILogger<GameUpdateStatisticsService> logger)
         {
             _serviceProvider = serviceProvider;
-            _logger = logger; // Решил в случаем с фоновыми процессами добавить логгирование
+            _logger = logger; // Решил в случае с фоновыми процессами добавить логгирование
         }
 
         /// <summary>

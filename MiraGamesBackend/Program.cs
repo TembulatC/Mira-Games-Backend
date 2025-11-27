@@ -40,7 +40,7 @@ namespace MiraGamesBackend
                 {
                     Title = "API Тестового задания Mira Games",
                     Version = "v1",
-                    Description = "Backend-сервис, который собирает, агрегирует и предоставляет данные о будущих релизах игр на ноябрь из Steam"
+                    Description = "Backend-сервис, который собирает, агрегирует и предоставляет данные о будущих релизах игр на следующий из Steam"
                 });
 
                 options.EnableAnnotations();

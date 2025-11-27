@@ -49,7 +49,7 @@ namespace Infrastructure.Modules.SteamIntegration.Repositories
                     int delayMs = _random.Next(2000, 5001); // Случайная задержка от 2 до 5 секунд
                     await Task.Delay(delayMs); // Добавляем задержку чтобы не превысить лимиты Steam API
                 }
-                catch (HttpRequestException ex) when (ex.StatusCode == System.Net.HttpStatusCode.BadGateway) // Если все таки превысили лимиты SteamAPI, то ждем еще 10 секунд и повторяем
+                catch (HttpRequestException ex) when (ex.StatusCode == System.Net.HttpStatusCode.BadGateway) // Если все таки превысили лимиты SteamAPI, то ждем 10 минут и повторяем
                 {
                     // ✅ Повтор в отдельном try-catch
                     try
@@ -73,23 +73,26 @@ namespace Infrastructure.Modules.SteamIntegration.Repositories
 
         /// <summary>
         /// Сохраняет данные об играх в JSON файл
-        /// Фильтрует только игры, выходящие в ноябре
+        /// Фильтрует только игры, выходящие в следующем месяце
         /// </summary>
         /// <param name="gameDataResponses">Список объектов с данными об играх для сохранения</param>
         public async Task SaveGamesData(List<SteamAPIResponse> gameDataResponses)
         {
             List<SteamAPIDto> allGamesData = new List<SteamAPIDto>();
 
-            Console.WriteLine("🎛️ Фильтрация ноябрьских игр");
+            DateTime today = DateTime.Today; // Формируем текущую дату
+            CultureInfo englishCulture = new CultureInfo("en-US"); // Переводим название месяцев на английский
+
+            Console.WriteLine($"🎛️ Фильтрация игр на {today.AddMonths(1):MMMM} {today.AddMonths(1):yyyy}");
             foreach (SteamAPIResponse gameData in gameDataResponses)
             {
                 // Проверяем условия для сохранения игры:
                 // 1. Успешный ответ от API
                 // 2. Игра находится в статусе "coming_soon" (скоро выйдет)
-                // 3. Дата релиза содержит "Nov" или "November" (ноябрьский релиз)
+                // 3. Дата релиза содержит название следующего месяца
                 if (gameData.success == true 
                     && gameData?.data?.releaseDate?.coming_soon == true 
-                    && (gameData?.data?.releaseDate?.date.Contains("Nov") == true || gameData?.data?.releaseDate?.date.Contains("November") == true))
+                    && (gameData?.data?.releaseDate?.date.Contains(today.AddMonths(1).ToString("MMM", englishCulture)) == true || gameData?.data?.releaseDate?.date.Contains(today.AddMonths(1).ToString("MMMM", englishCulture)) == true))
                 {
                     SteamAPIDto options = new SteamAPIDto // Создаем объект с оптимизированными данными для сохранения
                     {
@@ -136,11 +139,15 @@ namespace Infrastructure.Modules.SteamIntegration.Repositories
         {
             List<string> genresList = new List<string>();
 
-            // Проходим по всем жанрам игры и добавляем их описания
-            foreach (Genre genres in gameData.data.genres)
+            if (gameData.data.genres != null)
             {
-                genresList.Add(genres.description);
+                // Проходим по всем жанрам игры и добавляем их описания
+                foreach (Genre genres in gameData.data.genres)
+                {
+                    genresList.Add(genres.description);
+                }
             }
+            else genresList = ["None"]; // Если список жанров отсутствует
 
             return genresList;
         }

@@ -33,7 +33,7 @@ namespace Domain.Modules.SteamIntegration.Application.DTOs.Responses
         public SupportedPlatforms? supportedPlatforms { get; set; }
 
         [JsonPropertyName("genres")]
-        public Genre[]? genres { get; set; }
+        public Genre[]? genres { get; set; } = null;
 
         [JsonPropertyName("release_date")]
         public ReleaseDate? releaseDate { get; set; }

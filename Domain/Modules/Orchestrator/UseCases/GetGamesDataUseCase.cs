@@ -27,14 +27,14 @@ namespace Domain.Modules.Orchestrator.UseCases
 
         /// <summary>
         /// Выполняет полный цикл сбора данных об играх:
-        /// 1. Получение списка ID игр с ноябрьскими релизами через парсинг Steam страниц
+        /// 1. Получение списка ID игр с релизами на следующий месяц через парсинг Steam страниц
         /// 2. Получение детальных данных об играх через Steam API
         /// 3. Автоматическое сохранение отфильтрованных данных в JSON файл
         /// </summary>
         /// <returns>Список объектов с полными данными об играх из Steam API</returns>
         public async Task<List<SteamAPIResponse>> GetGames()
         {
-            // Этап 1: Парсинг Steam для получения ID ноябрьских игр
+            // Этап 1: Парсинг Steam для получения ID будущих релизов
             List<int> appIdList = await _getGamesIDPipeLine.GetGamesId();
 
             // Этап 2: Парсинг SteamAPI для получения детальных данных и сохранение в JSON

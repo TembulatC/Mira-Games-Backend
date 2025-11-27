@@ -6,7 +6,7 @@
         // Тексты для endpoint получения игр
         public static class GetGames
         {
-            public const string Summary = "Данный endpoint получает актуальные данные игр на ноябрь 2025 и записывает их в \"gameinfo.json\"";
+            public const string Summary = "Данный endpoint получает актуальные данные игр на следующий месяц и записывает их в \"gameinfo.json\"";
             public const string Description = "Обновление данных игр происходит по следующим принципам: Парсинг https://store.steampowered.com/search/?category1=998&filter=comingsoon&ndl=1 для получения ID игр -> Запрос к SteamAPI по ID для получения полной информации об игре -> Запись полученных данных в \"gameinfo.json\"" +
                 "<br><br><b>ВНИМАНИЕ!</b>" +
                 "<br>1. Данный endpoint не выполняется автоматически. Это нужно для того, что бы вы сами могли контролировать, когда загружать новые данные." +

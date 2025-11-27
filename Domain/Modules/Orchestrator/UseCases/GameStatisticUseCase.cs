@@ -36,17 +36,17 @@ namespace Domain.Modules.Orchestrator.UseCases
         }
 
         /// <summary>
-        /// Добавляет запись о динамике изменений статистики за ноябрь текущего года
-        /// Автоматически формирует данные за ноябрь и сохраняет в ClickHouse
+        /// Добавляет запись о динамике изменений статистики в следующем месяце
+        /// Автоматически формирует данные за следующий месяц и сохраняет в ClickHouse
         /// </summary>
         /// <returns>Task, представляющий асинхронную операцию</returns>
         public async Task AddChangeDynamic()
         {
-            // Формируем дату для ноябрьской статистики текущего года
+            // Формируем дату для статистики
             DateTime todayDateTime = DateTime.Today;
             DateOnly today = DateOnly.FromDateTime(todayDateTime);
 
-            string formatString = today.ToString("yyyy-11");
+            string formatString = today.AddMonths(1).ToString("yyyy-MM");
 
             List<StatisticDto> statistics = await _gameStatisticService.GetMostPopularGenres(formatString);
 

@@ -72,7 +72,7 @@ namespace Infrastructure.Modules.DataProcessing.Repositories
             int daysInMonth = DateTime.DaysInMonth(year, month);
 
             // Создаем список всех дней месяца от 1 до последнего дня
-            List<DateOnly> allDaysInMonth = Enumerable.Range(1, daysInMonth) // Ноябрь = 30 дней
+            List<DateOnly> allDaysInMonth = Enumerable.Range(1, daysInMonth) // daysInMonth = количество дней в месяце
                 .Select(day => new DateOnly(year, month, day))
                 .ToList();
 

@@ -2,12 +2,13 @@
 using Domain.Modules.SteamIntegration.Application.DTOs.Responses;
 using Domain.Modules.SteamIntegration.Interfaces.Repositories;
 using HtmlAgilityPack;
+using System.Globalization;
 using System.Text.Json;
 
 namespace Infrastructure.Modules.SteamIntegration.Repositories
 {
     /// <summary>
-    /// Репозиторий для парсинга Steam страниц с целью получения ID игр, выходящих в ноябре 2025 года
+    /// Репозиторий для парсинга Steam страниц с целью получения ID игр, выходящих в следующем месяце
     /// Реализует адаптивный алгоритм поиска, который отслеживает смещение релизов при обновлении каталога
     /// </summary>
     public class SteamParseIDRepository : ISteamParseRepository
@@ -61,24 +62,27 @@ namespace Infrastructure.Modules.SteamIntegration.Repositories
         }
 
         /// <summary>
-        /// Парсит Steam страницы для получения ID игр, выходящих в ноябре 2025 года
+        /// Парсит Steam страницы для получения ID игр, выходящих в следующем месяце
         /// Использует адаптивную логику: начинает поиск на 2 страницы раньше последней известной,
         /// чтобы отслеживать смещение релизов при обновлении каталога. Алгоритм продолжает поиск
-        /// до обнаружения декабрьских релизов, что гарантирует сбор всех ноябрьских игр.
+        /// до обнаружения релизов на другой месяц, что гарантирует сбор всех игр именно на следующий месяц.
         /// </summary>
         /// <param name="parseOptions">Настройки парсинга, включая стартовую страницу</param>
-        /// <returns>Список ID игр с ноябрьскими релизами 2025 года</returns>
+        /// <returns>Список ID игр с релизами</returns>
         public async Task<List<int>> ParseSteamGamesId(SteamParseDto parseOptions)
         {
             List<int> listID = new List<int>(); 
             
             int page = parseOptions.startPage - 2; // Начинаем поиск на 2 страницы раньше последней известной для отслеживания смещения
-            int? findNovemberPage = null;
-            bool foundDecember = false;
+            int? findPage = null;
+            bool foundMonth = false;
+            
+            DateTime today = DateTime.Today; // Формируем текущую дату
+            CultureInfo englishCulture = new CultureInfo("en-US"); // Переводим название месяцев на английский
 
             Console.WriteLine($"🔍 Начинаем поиск с страницы: {page}");
 
-            while (foundDecember == false) // Основной цикл парсинга: проходит по страницам пока не найдет декабрьские релизы
+            while (foundMonth == false) // Основной цикл парсинга: проходит по страницам пока не найдет релизы на другой месяц
             {
                 string url = $"https://store.steampowered.com/search/?category1=998&filter=comingsoon&ndl=1&page={page}&count=100";
                 string html = await _httpClient.GetStringAsync(url);
@@ -102,25 +106,27 @@ namespace Infrastructure.Modules.SteamIntegration.Repositories
 
                     if (releaseDate == string.Empty) continue;  // Пропускаем игры без указанной даты релиза
 
-                    // Пропускаем октябрьские релизы 2025 года
-                    if ((releaseDate.Contains("Oct") || releaseDate.Contains("October")) && releaseDate.Contains("2025"))
+                    // Пропускаем релизы текущего месяца
+                    if ((releaseDate.Contains(today.ToString("MMM", englishCulture)) || releaseDate.Contains(today.ToString("MMMM", englishCulture))) 
+                        && releaseDate.Contains(today.ToString("yyyy", englishCulture)))
                     {
                         continue;
                     }
 
-                    // Нашли ноябрьский релиз 2025 года - добавляем ID игры
-                    else if ((releaseDate.Contains("Nov") || releaseDate.Contains("November")) && releaseDate.Contains("2025"))
+                    // Нашли релизы следующего месяца - добавляем ID игры
+                    else if ((releaseDate.Contains(today.AddMonths(1).ToString("MMM", englishCulture)) || releaseDate.Contains(today.AddMonths(1).ToString("MMMM", englishCulture))) 
+                        && releaseDate.Contains(today.AddMonths(1).ToString("yyyy", englishCulture)))
                     {
                         int? appId = ExtractId(node);
 
                         if (appId.HasValue)
                         {
                             // Сообщаем пайплайну о текущей странице для возможного обновления состояния
-                            // Если мы нашли ноябрьские игры раньше ожидаемой страницы, пайплайн сохранит это смещение
-                            if (findNovemberPage == null)
+                            // Если мы нашли игры раньше ожидаемой страницы, пайплайн сохранит это смещение
+                            if (findPage == null)
                             {
-                                findNovemberPage = page;
-                                Console.WriteLine($"🎯 Нашли ноябрь на странице: {findNovemberPage}");
+                                findPage = page;
+                                Console.WriteLine($"🎯 Нашли игры следующего месяца на странице: {findPage}");
                             }
                             
                             listID.Add(appId.Value);
@@ -128,10 +134,11 @@ namespace Infrastructure.Modules.SteamIntegration.Repositories
                         else continue;
                     }
 
-                    // Нашли декабрьские игры - отмечаем для завершения после обработки текущей страницы
-                    else if ((releaseDate.Contains("Dec") || releaseDate.Contains("December")) && releaseDate.Contains("2025"))
+                    // Нашли игры идущие после следующего месяца - отмечаем для завершения после обработки текущей страницы
+                    else if ((releaseDate.Contains(today.AddMonths(2).ToString("MMM", englishCulture)) || releaseDate.Contains(today.AddMonths(2).ToString("MMMM", englishCulture))) 
+                        && releaseDate.Contains(today.AddMonths(2).ToString("yyyy", englishCulture)))
                     {
-                        foundDecember = true;
+                        foundMonth = true;
                         // НЕ завершаем сразу, обрабатываем всю страницу
                     }
                 }
@@ -140,14 +147,14 @@ namespace Infrastructure.Modules.SteamIntegration.Repositories
 
             }
 
-            if (findNovemberPage.HasValue) // Обновляем стартовую страницу для следующего запуска
+            if (findPage.HasValue) // Обновляем стартовую страницу для следующего запуска
             {
-                Console.WriteLine($"🔄 Устанавливаем стартовую страницу: {findNovemberPage}");
-                parseOptions.startPage = findNovemberPage.Value;
+                Console.WriteLine($"🔄 Устанавливаем стартовую страницу: {findPage}");
+                parseOptions.startPage = findPage.Value;
             }
             else parseOptions.startPage = 1;
 
-            Console.WriteLine($"✅ Найдено ноябрьских игр: {listID.Count}");
+            Console.WriteLine($"✅ Найдено игр: {listID.Count}");
             return listID;
         }
 

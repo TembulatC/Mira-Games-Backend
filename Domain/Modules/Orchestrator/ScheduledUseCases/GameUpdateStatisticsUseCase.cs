@@ -58,16 +58,16 @@ namespace Domain.Modules.Orchestrator.ScheduledUseCases
 
         /// <summary>
         /// Запланированное добавление записи о динамике изменений статистики
-        /// Сохраняет статистику за ноябрь текущего года в ClickHouse
+        /// Сохраняет статистику на следующий месяц в ClickHouse
         /// </summary>
         /// <returns>Task, представляющий асинхронную операцию</returns>
         public async Task ScheduledAddChangeDynamic()
         {
-            // Формируем дату для ноябрьской статистики текущего года
+            // Формируем дату
             DateTime todayDateTime = DateTime.Today;
             DateOnly today = DateOnly.FromDateTime(todayDateTime);
 
-            string formatString = today.ToString("yyyy-11");
+            string formatString = today.AddMonths(1).ToString("yyyy-MM");
 
             Console.WriteLine(formatString);
 

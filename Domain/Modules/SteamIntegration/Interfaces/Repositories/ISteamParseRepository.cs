@@ -6,12 +6,12 @@ namespace Domain.Modules.SteamIntegration.Interfaces.Repositories
     public interface ISteamParseRepository
     {
         /// <summary>
-        /// Загружает состояние парсера и дургих данных
+        /// Загружает состояние парсера и других данных
         /// </summary>
         Task<SteamParseResponse?> LoadState();
         
         /// <summary>
-        /// Парсит ID игр с ноябрьскими релизами 2025 года из Steam
+        /// Парсит ID игр с релизами на следующий месяц из Steam
         /// </summary>
         Task<List<int>> ParseSteamGamesId(SteamParseDto parseOptions);
 
