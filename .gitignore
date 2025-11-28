@@ -23,3 +23,7 @@ Thumbs.db
 
 # Docker
 .env
+
+# Other
+MiraGamesBackend/gameinfo.json
+MiraGamesBackend/data-state.json
