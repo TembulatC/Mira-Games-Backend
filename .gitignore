@@ -25,5 +25,5 @@ Thumbs.db
 .env
 
 # Other
-MiraGamesBackend/gameinfo.json
-MiraGamesBackend/data-state.json
+**/gameinfo.json
+**/data-state.json
