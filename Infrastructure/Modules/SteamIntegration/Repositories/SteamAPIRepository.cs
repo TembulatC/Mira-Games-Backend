@@ -39,33 +39,36 @@ namespace Infrastructure.Modules.SteamIntegration.Repositories
             Console.WriteLine("🚀 Начинаем запись игр из SteamAPI в список");
             foreach (int steamId in appId) 
             {
-                try
-                {
-                    var response = await _httpClient.GetFromJsonAsync<Dictionary<string, SteamAPIResponse>>($"https://store.steampowered.com/api/appdetails?appids={steamId}"); // Выполняем запрос к Steam API для получения данных об игре
-                    response.TryGetValue(steamId.ToString(), out SteamAPIResponse gameDataResponse); // Извлекаем данные игры из словаря ответа
-                    gameData.Add(gameDataResponse); // Добавляем игру в список
-                    Console.WriteLine($"✅ Игра с ID: {steamId} и Названием: {gameDataResponse.data.name} добавлена");
+                bool retry = false; // Флаг для повтора запроса в случае исключения
 
-                    int delayMs = _random.Next(2000, 5001); // Случайная задержка от 2 до 5 секунд
-                    await Task.Delay(delayMs); // Добавляем задержку чтобы не превысить лимиты Steam API
-                }
-                catch (HttpRequestException ex) when (ex.StatusCode == System.Net.HttpStatusCode.BadGateway) // Если все таки превысили лимиты SteamAPI, то ждем 10 минут и повторяем
+                while (retry != true)
                 {
-                    // ✅ Повтор в отдельном try-catch
                     try
                     {
-                        await Task.Delay(600000); // Через 10 минут пробуем снова
-
                         var response = await _httpClient.GetFromJsonAsync<Dictionary<string, SteamAPIResponse>>($"https://store.steampowered.com/api/appdetails?appids={steamId}"); // Выполняем запрос к Steam API для получения данных об игре
                         response.TryGetValue(steamId.ToString(), out SteamAPIResponse gameDataResponse); // Извлекаем данные игры из словаря ответа
                         gameData.Add(gameDataResponse); // Добавляем игру в список
                         Console.WriteLine($"✅ Игра с ID: {steamId} и Названием: {gameDataResponse.data.name} добавлена");
+
+                        int delayMs = _random.Next(2000, 5001); // Случайная задержка от 2 до 5 секунд
+                        await Task.Delay(delayMs); // Добавляем задержку чтобы не превысить лимиты Steam API
+
+                        retry = true; // Продолжаем
+
                     }
-                    catch (Exception retryEx)
+                    catch (HttpRequestException ex) when (ex.StatusCode == System.Net.HttpStatusCode.BadGateway) // Если все таки превысили лимиты SteamAPI, то ждем 10 минут и повторяем
                     {
-                        Console.WriteLine($"❌ Повторная попытка для AppID {steamId} также не удалась: {retryEx.Message}");
+                        Console.WriteLine("❌ Ошибка 502: Steam заблокировал обращение к API, ждем 10 минут и продолжаем парсинг");
+                        await Task.Delay(600000);
+
+                        retry = false; // Пробуем снова
                     }
-                }
+                    catch (Exception ex) // Любая другая ошибка - полная остановка парсера
+                    {               
+                        Console.WriteLine($"⛔ Критическая ошибка: {ex.Message}. Парсер полностью останавливается!");
+                        throw;
+                    }
+                }             
             }
 
             return gameData;

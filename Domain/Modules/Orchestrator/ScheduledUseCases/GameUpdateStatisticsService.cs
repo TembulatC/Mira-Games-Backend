@@ -41,9 +41,9 @@ namespace Domain.Modules.Orchestrator.ScheduledUseCases
                     using var scope = _serviceProvider.CreateScope();
                     var useCase = scope.ServiceProvider.GetRequiredService<GameUpdateStatisticsUseCase>();
 
-                    // Этап 1: JSON (ждем 3 часа с момента последнего запуска)
-                    _logger.LogInformation("Этап 1: Ожидание 3 часа для обновления JSON...");
-                    await Task.Delay(TimeSpan.FromHours(3), stoppingToken);
+                    // Этап 1: JSON (ждем 2 часа с момента последнего запуска)
+                    _logger.LogInformation("Этап 1: Ожидание 2 часа для обновления JSON...");
+                    await Task.Delay(TimeSpan.FromHours(2), stoppingToken);
 
                     _logger.LogInformation("Этап 1: Запуск обновления JSON");
                     await useCase.ScheduledGetGamesId();
@@ -65,7 +65,7 @@ namespace Domain.Modules.Orchestrator.ScheduledUseCases
                     await useCase.ScheduledAddChangeDynamic();
                     _logger.LogInformation("Этап 3: Экспорт в ClickHouse завершен");
 
-                    _logger.LogInformation("Последовательный конвейер данных завершен. Общий цикл: 3.3 часа");
+                    _logger.LogInformation("Последовательный конвейер данных завершен. Общий цикл: 2.3 часа");
                 }
                 catch (OperationCanceledException)
                 {
