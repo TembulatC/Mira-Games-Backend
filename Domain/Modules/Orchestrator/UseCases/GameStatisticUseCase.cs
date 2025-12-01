@@ -52,7 +52,7 @@ namespace Domain.Modules.Orchestrator.UseCases
 
             ClickHouseStatisticDto clickHouseStatistic = new ClickHouseStatisticDto
             {
-                date = DateTime.Now, // В ClickHouse сохраняется подробное время снимка
+                date = DateTime.UtcNow, // В ClickHouse сохраняется подробное время снимка
                 popularGenres = statistics.Select(statistic => new PopularGenres
                 {
                     genre = statistic.genre,

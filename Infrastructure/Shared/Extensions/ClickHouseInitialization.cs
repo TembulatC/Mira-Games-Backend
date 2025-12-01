@@ -1,4 +1,5 @@
 ﻿using ClickHouse.Client.ADO;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -13,10 +14,12 @@ namespace Infrastructure.Shared.Extensions
     public class ClickHouseInitialization
     {
         private readonly string _connectionString;
+        private readonly ILogger<ClickHouseInitialization> _logger;
 
-        public ClickHouseInitialization(string connectionString)
+        public ClickHouseInitialization(string connectionString, ILogger<ClickHouseInitialization> logger)
         {
             _connectionString = connectionString;
+            _logger = logger;
         }
 
         /// <summary>
@@ -43,7 +46,7 @@ namespace Infrastructure.Shared.Extensions
                 var createTableQuery = @"
                     CREATE TABLE IF NOT EXISTS MiraGamesTest.game_snapshots
                     (
-                        Date DateTime,
+                        Date DateTime('UTC'),
                         PopularGenres Nested (
                             Genre String,
                             Games Int32
@@ -60,11 +63,11 @@ namespace Infrastructure.Shared.Extensions
                 // Проверяем есть ли данные в таблице и добавляем начальные если пусто
                 await InsertInitialDataIfEmptyAsync(connection);
 
-                Console.WriteLine("ClickHouse database and table initialized successfully");
+                _logger.LogInformation("База данных и таблица ClickHouse успешно инициализированы");
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Error initializing ClickHouse: {ex.Message}");
+                _logger.LogError(ex, "Ошибка инициализации ClickHouse");
                 throw;
             }
         }
@@ -88,32 +91,32 @@ namespace Infrastructure.Shared.Extensions
                 var initialData = new[]
                 {
                     new {
-                        Date = new DateTime(2025, 10, 30, 12, 45, 16),
+                        Date = new DateTime(2025, 10, 30, 12, 45, 16, DateTimeKind.Utc),
                         Genres = new[] { "Indie", "Adventure", "Casual", "Action", "Simulation" },
                         Games = new[] { 740, 417, 408, 371, 248 }
                     },
                     new {
-                        Date = new DateTime(2025, 10, 30, 12, 31, 16),
+                        Date = new DateTime(2025, 10, 30, 12, 31, 16, DateTimeKind.Utc),
                         Genres = new[] { "Indie", "Adventure", "Casual", "Action", "Simulation" },
                         Games = new[] { 762, 425, 419, 379, 257 }
                     },
                     new {
-                        Date = new DateTime(2025, 10, 30, 04, 43, 13),
+                        Date = new DateTime(2025, 10, 30, 04, 43, 13, DateTimeKind.Utc),
                         Genres = new[] { "Indie", "Adventure", "Casual", "Action", "Simulation" },
                         Games = new[] { 752, 421, 412, 376, 253 }
                     },
                     new {
-                        Date = new DateTime(2025, 10, 30, 02, 33, 57),
+                        Date = new DateTime(2025, 10, 30, 02, 33, 57, DateTimeKind.Utc),
                         Genres = new[] { "Indie", "Adventure", "Casual", "Action", "Simulation" },
                         Games = new[] { 752, 421, 412, 376, 253 }
                     },
                     new {
-                        Date = new DateTime(2025, 10, 29, 22, 51, 44),
+                        Date = new DateTime(2025, 10, 29, 22, 51, 44, DateTimeKind.Utc),
                         Genres = new[] { "Indie", "Adventure", "Casual", "Action", "Simulation" },
                         Games = new[] { 680, 380, 373, 330, 231 }
                     },
                     new {
-                        Date = new DateTime(2025, 10, 29, 22, 47, 05),
+                        Date = new DateTime(2025, 10, 29, 22, 47, 05, DateTimeKind.Utc),
                         Genres = new[] { "Indie", "Adventure", "Casual", "Action", "Simulation" },
                         Games = new[] { 680, 380, 373, 330, 231 }
                     }
@@ -125,7 +128,7 @@ namespace Infrastructure.Shared.Extensions
                     var insertQuery = @"
                         INSERT INTO MiraGamesTest.game_snapshots 
                         (Date, `PopularGenres.Genre`, `PopularGenres.Games`) 
-                        VALUES (@Date, @Genres, @Games)";
+                        VALUES (toDateTime(@Date, 'UTC'), @Genres, @Games)";
 
                     using var insertCommand = connection.CreateCommand();
                     insertCommand.CommandText = insertQuery;
@@ -133,7 +136,7 @@ namespace Infrastructure.Shared.Extensions
                     // Параметр даты
                     var dateParam = insertCommand.CreateParameter();
                     dateParam.ParameterName = "Date";
-                    dateParam.Value = data.Date;
+                    dateParam.Value = data.Date.ToString("yyyy-MM-dd HH:mm:ss");
                     insertCommand.Parameters.Add(dateParam);
 
                     // Параметр жанров
@@ -151,11 +154,11 @@ namespace Infrastructure.Shared.Extensions
                     await insertCommand.ExecuteNonQueryAsync();
                 }
 
-                Console.WriteLine($"Initial data inserted: {initialData.Length} historical records");
+                _logger.LogInformation($"Инициализируем начальные данные: {initialData.Length} исторических записей");
             }
             else
             {
-                Console.WriteLine("Table already contains data, skipping initial data insertion");
+                _logger.LogInformation("Таблица уже содержит данные, первоначальная вставка данных пропускается");
             }
         }
     }

@@ -1,6 +1,7 @@
 ﻿using Domain.Modules.SteamIntegration.Application.DTOs;
 using Domain.Modules.SteamIntegration.Application.DTOs.Responses;
 using Domain.Modules.SteamIntegration.Interfaces.Repositories;
+using Microsoft.Extensions.Logging;
 using System.Globalization;
 using System.Net;
 using System.Net.Http.Json;
@@ -14,14 +15,16 @@ namespace Infrastructure.Modules.SteamIntegration.Repositories
         private readonly HttpClient _httpClient;
         private readonly Random _random;
         private readonly string _gameInfoFilePath;
+        private readonly ILogger<SteamAPIRepository> _logger;
 
         /// <summary>
         /// Конструктор репозитория для работы с Steam API
         /// </summary>
         /// <param name="httpClient">HTTP клиент для выполнения запросов</param>
-        public SteamAPIRepository(HttpClient httpClient)
+        public SteamAPIRepository(HttpClient httpClient, ILogger<SteamAPIRepository> logger)
         {
             _httpClient = httpClient;
+            _logger = logger;
             _random = new Random();
             _gameInfoFilePath = "gameinfo.json"; // Файл для записи данных об играх
         }
@@ -36,7 +39,7 @@ namespace Infrastructure.Modules.SteamIntegration.Repositories
             List<SteamAPIResponse> gameData = new List<SteamAPIResponse>();
 
             // Проходим по всем переданным AppID
-            Console.WriteLine("🚀 Начинаем запись игр из SteamAPI в список");
+            _logger.LogInformation("🚀 Начинаем запись игр из SteamAPI в список");
             foreach (int steamId in appId) 
             {
                 bool retry = false; // Флаг для повтора запроса в случае исключения
@@ -48,7 +51,7 @@ namespace Infrastructure.Modules.SteamIntegration.Repositories
                         var response = await _httpClient.GetFromJsonAsync<Dictionary<string, SteamAPIResponse>>($"https://store.steampowered.com/api/appdetails?appids={steamId}"); // Выполняем запрос к Steam API для получения данных об игре
                         response.TryGetValue(steamId.ToString(), out SteamAPIResponse gameDataResponse); // Извлекаем данные игры из словаря ответа
                         gameData.Add(gameDataResponse); // Добавляем игру в список
-                        Console.WriteLine($"✅ Игра с ID: {steamId} и Названием: {gameDataResponse.data.name} добавлена");
+                        _logger.LogInformation($"✅ Игра с ID: {steamId} и Названием: {gameDataResponse.data.name} добавлена");
 
                         int delayMs = _random.Next(2000, 5001); // Случайная задержка от 2 до 5 секунд
                         await Task.Delay(delayMs); // Добавляем задержку чтобы не превысить лимиты Steam API
@@ -58,14 +61,14 @@ namespace Infrastructure.Modules.SteamIntegration.Repositories
                     }
                     catch (HttpRequestException ex) when (ex.StatusCode == System.Net.HttpStatusCode.BadGateway) // Если все таки превысили лимиты SteamAPI, то ждем 10 минут и повторяем
                     {
-                        Console.WriteLine("❌ Ошибка 502: Steam заблокировал обращение к API, ждем 10 минут и продолжаем парсинг");
+                        _logger.LogError(ex, "❌ Ошибка 502: Steam заблокировал обращение к API, ждем 10 минут и продолжаем парсинг");
                         await Task.Delay(600000);
 
                         retry = false; // Пробуем снова
                     }
                     catch (Exception ex) // Любая другая ошибка - полная остановка парсера
                     {               
-                        Console.WriteLine($"⛔ Критическая ошибка: {ex.Message}. Парсер полностью останавливается!");
+                        _logger.LogCritical(ex, "⛔ Критическая ошибка: Парсер полностью останавливается!");
                         throw;
                     }
                 }             
@@ -86,7 +89,7 @@ namespace Infrastructure.Modules.SteamIntegration.Repositories
             DateTime today = DateTime.Today; // Формируем текущую дату
             CultureInfo englishCulture = new CultureInfo("en-US"); // Переводим название месяцев на английский
 
-            Console.WriteLine($"🎛️ Фильтрация игр на {today.AddMonths(1):MMMM} {today.AddMonths(1):yyyy}");
+            _logger.LogInformation($"🎛️ Фильтрация игр на {today.AddMonths(1):MMMM} {today.AddMonths(1):yyyy}");
             foreach (SteamAPIResponse gameData in gameDataResponses)
             {
                 // Проверяем условия для сохранения игры:
@@ -110,7 +113,7 @@ namespace Infrastructure.Modules.SteamIntegration.Repositories
                     };
                     
                     allGamesData.Add(options); // Добавляем игру в список для сохранения
-                    Console.WriteLine($"✅ Игра {gameData.data.name} добавлена для записи");
+                    _logger.LogInformation($"✅ Игра {gameData.data.name} добавлена для записи");
                 }
 
                 else continue; // Пропускаем игру если не прошла фильтр
@@ -123,11 +126,11 @@ namespace Infrastructure.Modules.SteamIntegration.Repositories
                     WriteIndented = true // Форматируем JSON для читаемости
                 });
                 await File.WriteAllTextAsync(_gameInfoFilePath, json);
-                Console.WriteLine($"✅ Сохранено и записано {allGamesData.Count} игр");
+                _logger.LogInformation($"✅ Сохранено и записано {allGamesData.Count} игр");
             }
             else
             {
-                Console.WriteLine("⚠️ Нет данных для сохранения");
+                _logger.LogInformation("⚠️ Нет данных для сохранения");
             }
         }
 

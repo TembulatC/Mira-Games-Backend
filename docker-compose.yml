@@ -9,6 +9,7 @@ services:
     env_file:
       - .env
     environment:
+      - TZ=UTC
       - ASPNETCORE_ENVIRONMENT=Development
       - DOTNET_ENVIRONMENT=Development
       - ASPNETCORE_URLS=http://+:8080
@@ -28,6 +29,8 @@ services:
     image: postgres:15
     container_name: postgredb
     environment:
+      - TZ=UTC
+      - PGTZ=UTC
       - POSTGRES_DB=${POSTGRES_DB}
       - POSTGRES_USER=${POSTGRES_USER}
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
@@ -48,6 +51,7 @@ services:
     image: clickhouse/clickhouse-server:latest
     container_name: clickhousedb
     environment:
+      - TZ=UTC
       - CLICKHOUSE_DB=${CLICKHOUSE_DB}
       - CLICKHOUSE_USER=${CLICKHOUSE_USER}
       - CLICKHOUSE_PASSWORD=${CLICKHOUSE_PASSWORD}
@@ -70,6 +74,7 @@ services:
     ports:
       - "8125:80"
     environment:
+      - TZ=UTC
       - CH_HOST=clickhousedb
       - CH_PORT=${CLICKHOUSE_PORT}
       - CH_USER=${CLICKHOUSE_USER}

@@ -2,6 +2,7 @@
 using Domain.Modules.SteamIntegration.Application.DTOs.Responses;
 using Domain.Modules.SteamIntegration.Interfaces.Repositories;
 using HtmlAgilityPack;
+using Microsoft.Extensions.Logging;
 using System.Globalization;
 using System.Text.Json;
 
@@ -15,14 +16,16 @@ namespace Infrastructure.Modules.SteamIntegration.Repositories
     {
         private readonly HttpClient _httpClient;
         private readonly string _stateFilePath;
+        private readonly ILogger<SteamParseIDRepository> _logger;
 
         /// <summary>
         /// Инициализирует новый экземпляр репозитория для парсинга Steam
         /// </summary>
         /// <param name="httpClient">HTTP клиент для выполнения запросов к Steam Store</param>
-        public SteamParseIDRepository(HttpClient httpClient)
+        public SteamParseIDRepository(HttpClient httpClient, ILogger<SteamParseIDRepository> logger)
         {
             _httpClient = httpClient;
+            _logger = logger;
 
             // Устанавливаем User-Agent для имитации браузера и избежания блокировки
             _httpClient.DefaultRequestHeaders.Add("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.36");         
@@ -76,13 +79,13 @@ namespace Infrastructure.Modules.SteamIntegration.Repositories
             int page = parseOptions.startPage - 2; // Начинаем поиск на 2 страницы раньше последней известной для отслеживания смещения
             int? findPage = null;
             bool foundMonth = false;
-            
-            DateTime today = DateTime.Today; // Формируем текущую дату
+
+            DateTime today = DateTime.UtcNow.Date; // Формируем текущую дату в UTC формате
             CultureInfo englishCulture = new CultureInfo("en-US"); // Переводим название месяцев на английский
 
             if (page <= 1) page = 1; // Проверка что бы парсер не начинал парсить страницу с отрицательного числа
 
-            Console.WriteLine($"🔍 Начинаем поиск с страницы: {page}");
+            _logger.LogInformation($"🔍 Начинаем поиск с страницы: {page}");
 
             while (foundMonth == false) // Основной цикл парсинга: проходит по страницам пока не найдет релизы на другой месяц
             {
@@ -128,7 +131,7 @@ namespace Infrastructure.Modules.SteamIntegration.Repositories
                             if (findPage == null)
                             {
                                 findPage = page;
-                                Console.WriteLine($"🎯 Нашли игры следующего месяца на странице: {findPage}");
+                                _logger.LogInformation($"🎯 Нашли игры следующего месяца на странице: {findPage}");
                             }
                             
                             listID.Add(appId.Value);
@@ -151,12 +154,12 @@ namespace Infrastructure.Modules.SteamIntegration.Repositories
 
             if (findPage.HasValue) // Обновляем стартовую страницу для следующего запуска
             {
-                Console.WriteLine($"🔄 Устанавливаем стартовую страницу: {findPage}");
+                _logger.LogInformation($"🔄 Устанавливаем стартовую страницу: {findPage}");
                 parseOptions.startPage = findPage.Value;
             }
             else parseOptions.startPage = 1;
 
-            Console.WriteLine($"✅ Найдено игр: {listID.Count}");
+            _logger.LogInformation($"✅ Найдено игр: {listID.Count}");
             return listID;
         }
 
