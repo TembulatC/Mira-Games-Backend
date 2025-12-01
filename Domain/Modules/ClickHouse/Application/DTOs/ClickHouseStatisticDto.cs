@@ -4,7 +4,6 @@ namespace Domain.Modules.ClickHouse.Application.DTOs
     public record class ClickHouseStatisticDto
     {
         public DateTime date { get; set; }
-
         public PopularGenres[] popularGenres { get; set; }
     }
 

@@ -69,8 +69,6 @@ namespace Domain.Modules.Orchestrator.ScheduledUseCases
 
             string formatString = today.AddMonths(1).ToString("yyyy-MM");
 
-            Console.WriteLine(formatString);
-
             List<StatisticDto> statistics = await _gameStatisticService.GetMostPopularGenres(formatString);
 
             ClickHouseStatisticDto clickHouseStatistic = new ClickHouseStatisticDto

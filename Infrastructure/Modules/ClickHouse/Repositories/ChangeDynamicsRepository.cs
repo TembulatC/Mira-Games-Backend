@@ -40,15 +40,18 @@ namespace Infrastructure.Modules.ClickHouse.Repositories
             var insertQuery = @"
                 INSERT INTO MiraGamesTest.game_snapshots 
                 (Date, PopularGenres.Genre, PopularGenres.Games) 
-                VALUES (@Date, @Genres, @Games)";
+                VALUES (toDateTime(@Date, 'UTC'), @Genres, @Games)";
 
             using DbCommand command = connection.CreateCommand();
             command.CommandText = insertQuery;
 
+            // Дата должна быть в UTC
+            var utcDate = statistic.date.ToUniversalTime(); // Гарантируем UTC
+
             // Добавление параметра для Date
             var dateParam = command.CreateParameter();
             dateParam.ParameterName = "Date";
-            dateParam.Value = statistic.date;
+            dateParam.Value = utcDate.ToString("yyyy-MM-dd HH:mm:ss"); // Строка в UTC формате
             command.Parameters.Add(dateParam);
 
             // Добавление параметра для Genres
@@ -81,7 +84,8 @@ namespace Infrastructure.Modules.ClickHouse.Repositories
             // Используем LIKE для фильтрации по формату yyyy-MM
             var selectQuery = @"
                 SELECT 
-                    Date,
+                    toString(Date) as DateString,
+                    toTimeZone(Date, 'UTC') as DateUTC,
                     PopularGenres.Genre,
                     PopularGenres.Games
                 FROM MiraGamesTest.game_snapshots 
@@ -109,7 +113,8 @@ namespace Infrastructure.Modules.ClickHouse.Repositories
             // Цикл чтения каждой строки из результата запроса
             while (await reader.ReadAsync())
             {
-                var recordDate = reader.GetDateTime("Date"); // Получение значения даты из колонки "Date"
+                var dateString = reader.GetString("DateString");
+                var recordDate = DateTime.Parse(dateString);
                 var genres = reader.GetFieldValue<string[]>("PopularGenres.Genre"); // Получение массива жанров из вложенной структуры PopularGenres.Genre
                 var games = reader.GetFieldValue<int[]>("PopularGenres.Games"); // Получение массива количества игр из вложенной структуры PopularGenres.Games
 

@@ -3,6 +3,7 @@ using Domain.Modules.DataProcessing.Interfaces.Repositories;
 using Domain.Modules.DataProcessing.Models;
 using Infrastructure.Shared.Database.DBContext;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -20,14 +21,16 @@ namespace Infrastructure.Modules.DataProcessing.Repositories
     {
         private readonly AppDBContext _appDBContext;
         private readonly string _gameInfoFilePath;
+        private readonly ILogger<GameDataDBRepository> _logger;
 
         /// <summary>
         /// Инициализирует новый экземпляр репозитория
         /// </summary>
         /// <param name="appDBContext">Контекст базы данных Entity Framework</param>
-        public GameDataDBRepository(AppDBContext appDBContext)
+        public GameDataDBRepository(AppDBContext appDBContext, ILogger<GameDataDBRepository> logger)
         {
             _appDBContext = appDBContext;
+            _logger = logger;
             _gameInfoFilePath = "gameinfo.json"; // Файл для выгрузки данных об играх
         }
 
@@ -37,12 +40,12 @@ namespace Infrastructure.Modules.DataProcessing.Repositories
         /// <returns>Десериализованный список DTO или null если файл не найден</returns>
         public async Task<List<GameDataDBDto>?> LoadGameData()
         {
-            Console.WriteLine("⌚ Десериализуем JSON");
+            _logger.LogInformation("⌚ Десериализуем JSON");
             if (File.Exists(_gameInfoFilePath))
             {
                 using (FileStream openStream = File.OpenRead(_gameInfoFilePath))
                 {
-                    Console.WriteLine("✅ JSON успешно десериализован");
+                    _logger.LogInformation("✅ JSON успешно десериализован");
                     return await JsonSerializer.DeserializeAsync<List<GameDataDBDto>>(openStream);
                 }              
             }
@@ -74,7 +77,7 @@ namespace Infrastructure.Modules.DataProcessing.Repositories
                     _appDBContext.Games.RemoveRange(gamesToDelete);
                 }
 
-                Console.WriteLine("🚀 Начинаем обработку данных");
+                _logger.LogInformation("🚀 Начинаем обработку данных");
                 foreach (GameDataDBDto options in gameDataDBOptions)
                 {
                     // Проверяем существование игры в базе данных
@@ -98,7 +101,7 @@ namespace Infrastructure.Modules.DataProcessing.Repositories
         /// <param name="options">DTO с данными для создания игры</param>
         private void AddGamesData(GameDataDBDto options)
         {
-            Console.WriteLine($"💾 Игра с Названием: {options.Title} и ID: {options.SteamId} - новая, сохраняем в базу данных");
+            _logger.LogInformation($"💾 Игра с Названием: {options.Title} и ID: {options.SteamId} - новая, сохраняем в базу данных");
             Game game = new Game(options.SteamId, options.Title, options.ReleaseDate, options.Genres, options.StoreURL, options.ImageURL, options.ShortDescription, options.SupportedPlatforms);
             _appDBContext.Games.Add(game);
         }
@@ -110,7 +113,7 @@ namespace Infrastructure.Modules.DataProcessing.Repositories
         /// <param name="existingGame">Существующая сущность игры для обновления</param>
         private void UpdateGamesData(GameDataDBDto options, Game existingGame)
         {
-            Console.WriteLine($"🔄 Игра с Названием: {options.Title} и ID: {options.SteamId} - уже существует, обновляем старые данные");
+            _logger.LogInformation($"🔄 Игра с Названием: {options.Title} и ID: {options.SteamId} - уже существует, обновляем старые данные");
             // Если SteamId изменился в API - обновляем!
             if (existingGame.SteamId != options.SteamId)
             {

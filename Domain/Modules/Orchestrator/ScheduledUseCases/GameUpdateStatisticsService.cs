@@ -69,7 +69,7 @@ namespace Domain.Modules.Orchestrator.ScheduledUseCases
                 }
                 catch (OperationCanceledException)
                 {
-                    _logger.LogInformation("Конвейер данных был отменен");
+                    _logger.LogWarning("Конвейер данных был отменен");
                     break;
                 }
                 catch (Exception ex)
