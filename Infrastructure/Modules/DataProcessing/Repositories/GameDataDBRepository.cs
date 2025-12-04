@@ -85,8 +85,6 @@ namespace Infrastructure.Modules.DataProcessing.Repositories
 
                     if (existingGame == null) AddGamesData(options); // Добавляем новую игру
                     else if (existingGame != null) UpdateGamesData(options, existingGame); // Обновляем существующую
-
-                    await Task.Delay(100); // Вежливая задержка
                 }
 
                 // Сохраняем все изменения одним запросом к базе данных

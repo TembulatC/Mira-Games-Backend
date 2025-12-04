@@ -41,9 +41,9 @@ namespace Domain.Modules.Orchestrator.ScheduledUseCases
                     using var scope = _serviceProvider.CreateScope();
                     var useCase = scope.ServiceProvider.GetRequiredService<GameUpdateStatisticsUseCase>();
 
-                    // Этап 1: JSON (ждем 2 часа с момента последнего запуска)
-                    _logger.LogInformation("Этап 1: Ожидание 2 часа для обновления JSON...");
-                    await Task.Delay(TimeSpan.FromHours(2), stoppingToken);
+                    // Этап 1: JSON (ждем 10 минут с момента последнего запуска)
+                    _logger.LogInformation("Этап 1: Ожидание 10 минут для обновления JSON...");
+                    await Task.Delay(TimeSpan.FromMinutes(10), stoppingToken);
 
                     _logger.LogInformation("Этап 1: Запуск обновления JSON");
                     await useCase.ScheduledGetGamesId();
@@ -65,7 +65,8 @@ namespace Domain.Modules.Orchestrator.ScheduledUseCases
                     await useCase.ScheduledAddChangeDynamic();
                     _logger.LogInformation("Этап 3: Экспорт в ClickHouse завершен");
 
-                    _logger.LogInformation("Последовательный конвейер данных завершен. Общий цикл: 2.3 часа");
+                    _logger.LogInformation("Последовательный конвейер данных завершен. Следующий цикл через 2 часа");
+                    await Task.Delay(TimeSpan.FromHours(2), stoppingToken);
                 }
                 catch (OperationCanceledException)
                 {
@@ -74,7 +75,7 @@ namespace Domain.Modules.Orchestrator.ScheduledUseCases
                 }
                 catch (Exception ex)
                 {
-                    _logger.LogError(ex, "Ошибка в последовательном конвейере данных");
+                    _logger.LogCritical(ex, "⛔ Ошибка в последовательном конвейере данных, через 5 минут произойдет перезапуск конвейера");
 
                     // Ждем перед повторной попыткой при ошибке
                     await Task.Delay(TimeSpan.FromMinutes(5), stoppingToken);

@@ -2,6 +2,7 @@
 using Domain.Modules.ClickHouse.Application.DTOs;
 using Domain.Modules.ClickHouse.Interfaces.Repositories;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -19,10 +20,12 @@ namespace Infrastructure.Modules.ClickHouse.Repositories
     public class ChangeDynamicsRepository : IChangeDynamicsRepository
     {
         private readonly string _connectionString;
+        private readonly ILogger<ChangeDynamicsRepository> _logger;
 
-        public ChangeDynamicsRepository(IConfiguration configuration)
+        public ChangeDynamicsRepository(IConfiguration configuration, ILogger<ChangeDynamicsRepository> logger)
         {
             _connectionString = configuration.GetConnectionString("ClickHouseConnection");
+            _logger = logger;
         }
 
         /// <summary>
@@ -66,7 +69,11 @@ namespace Infrastructure.Modules.ClickHouse.Repositories
             gamesParam.Value = statistic.popularGenres.Select(pg => pg.games).ToArray();
             command.Parameters.Add(gamesParam);
 
-            await command.ExecuteNonQueryAsync();
+            if ((statistic.popularGenres.Length < 5) || statistic.popularGenres.Any(g => string.IsNullOrEmpty(g.genre)) || statistic.popularGenres.Any(g => string.IsNullOrEmpty(g.games.ToString())))
+            {
+                _logger.LogWarning("Пришли пустые или неполные данные, сохранение снимка в Clickhouse отменено");
+            }
+            else await command.ExecuteNonQueryAsync();
         }
 
         /// <summary>
