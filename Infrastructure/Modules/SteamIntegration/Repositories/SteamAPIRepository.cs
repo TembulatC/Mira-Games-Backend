@@ -43,6 +43,7 @@ namespace Infrastructure.Modules.SteamIntegration.Repositories
             foreach (int steamId in appId) 
             {
                 bool retry = false; // Флаг для повтора запроса в случае исключения
+                int attempt429error = 1; // Счетчик попыток обращения к SteamAPI в случае ошибки 429
 
                 while (retry != true)
                 {
@@ -59,17 +60,56 @@ namespace Infrastructure.Modules.SteamIntegration.Repositories
                         retry = true; // Продолжаем
 
                     }
-                    catch (HttpRequestException ex) when (ex.StatusCode == System.Net.HttpStatusCode.BadGateway) // Если все таки превысили лимиты SteamAPI, то ждем 10 минут и повторяем
+                    catch (HttpRequestException ex) when (ex.StatusCode == System.Net.HttpStatusCode.BadGateway) // Ошибка 502
                     {
-                        _logger.LogError(ex, "❌ Ошибка 502: Steam заблокировал обращение к API, ждем 10 минут и продолжаем парсинг");
-                        await Task.Delay(600000);
+                        _logger.LogError(ex, "❌ Ошибка 502: Проблема с ответом от вышестоящего сервера SteamAPI, ждем 2 минуты и повторяем попытку");
+                        await Task.Delay(TimeSpan.FromMinutes(5));
 
                         retry = false; // Пробуем снова
                     }
+                    catch (HttpRequestException ex) when (ex.StatusCode == System.Net.HttpStatusCode.InternalServerError) // Ошибка 500
+                    {
+                        _logger.LogError(ex, "❌ Ошибка 500: Общая ошибка, сервер SteamAPI не может обработать запрос из-за непредвиденной внутренней проблемы, ждем 5 минут и повторяем попытку");
+                        await Task.Delay(TimeSpan.FromMinutes(5));
+
+                        retry = false; // Пробуем снова
+                    }
+                    catch (HttpRequestException ex) when (ex.StatusCode == System.Net.HttpStatusCode.ServiceUnavailable) // Ошибка 503
+                    {
+                        _logger.LogError(ex, "❌ Ошибка 503: Сервер SteamAPI временно не может обрабатывать запросы, ждем 5 минут и повторяем попытку");
+                        await Task.Delay(TimeSpan.FromMinutes(5));
+
+                        retry = false; // Пробуем снова
+                    }
+                    catch (HttpRequestException ex) when (ex.StatusCode == System.Net.HttpStatusCode.BadRequest) // Ошибка 400
+                    {
+                        _logger.LogError(ex, $"❌ Ошибка 400: Был передан неверный формат ID в Steam API, пропускаем его и переходим к следующему. Переданный ID - [{steamId}]");
+                        break; // Пропускаем итерацию и преходим к следующей
+                    }
+                    catch (HttpRequestException ex) when (ex.StatusCode == System.Net.HttpStatusCode.TooManyRequests) // Ошибка 429
+                    {
+                        if (attempt429error <= 5)
+                        {
+                            TimeSpan delay = TimeSpan.FromMinutes(15 * attempt429error);
+                            _logger.LogError(ex, $"❌ Ошибка 429: Слишком много запросов к SteamAPI, ждем {delay.TotalMinutes} минут и пробуем снова");
+                            await Task.Delay(delay);
+
+                            retry = false; // Пробуем снова
+                            attempt429error++; // Счетчик попыток увеличивается
+                        }
+                        else
+                        {
+                            _logger.LogCritical(ex, "⛔ Критическая ошибка: После 5 попыток SteamAPI не дал доступ к своим ресурсам, ждем 24 часа и полностью перезапускаем парсер!");
+                            await Task.Delay(TimeSpan.FromHours(24));
+
+                            throw; // Передаем ошибку выше в фоновый конвейер
+                        }
+                        
+                    }
                     catch (Exception ex) // Любая другая ошибка - полная остановка парсера
-                    {               
-                        _logger.LogCritical(ex, "⛔ Критическая ошибка: Парсер полностью останавливается!");
-                        throw;
+                    {
+                        _logger.LogCritical(ex, "⛔ Критическая ошибка: Парсер полностью перезапускается!");
+                        throw; // Передаем ошибку выше в фоновый конвейер
                     }
                 }             
             }
