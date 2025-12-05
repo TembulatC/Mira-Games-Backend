@@ -41,9 +41,9 @@ namespace Domain.Modules.Orchestrator.ScheduledUseCases
                     using var scope = _serviceProvider.CreateScope();
                     var useCase = scope.ServiceProvider.GetRequiredService<GameUpdateStatisticsUseCase>();
 
-                    // Этап 1: JSON (ждем 10 минут с момента последнего запуска)
-                    _logger.LogInformation("Этап 1: Ожидание 10 минут для обновления JSON...");
-                    await Task.Delay(TimeSpan.FromMinutes(10), stoppingToken);
+                    // Этап 1: JSON (ждем 1 минуту с момента последнего запуска)
+                    _logger.LogInformation("Этап 1: Ожидание 1 минута для обновления JSON...");
+                    await Task.Delay(TimeSpan.FromMinutes(1), stoppingToken);
 
                     _logger.LogInformation("Этап 1: Запуск обновления JSON");
                     await useCase.ScheduledGetGamesId();
